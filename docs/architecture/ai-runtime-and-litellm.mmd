@@ -1,0 +1,42 @@
+flowchart TB
+    spa["SPA React"]
+    public["schedule-signing"]
+
+    analysis_svc["AnalysisService"]
+    chat_svc["ChatService"]
+    signing_svc["SigningCoordinationService"]
+    runtime["AIRuntime"]
+
+    registry["get_llm_provider"]
+    guarded["GuardedLLMProvider"]
+    litellm_rt["litellm_runtime"]
+    chat_llm["ContractChatLLM"]
+    react["LangGraph ReAct agent"]
+    tools["Signing tools"]
+    cag["CAG corpus"]
+    gw["Guardrails"]
+
+    oai["OpenAI"]
+    ant["Anthropic"]
+    sql[("SQL Server")]
+
+    spa --> analysis_svc
+    spa --> chat_svc
+    public --> signing_svc
+    analysis_svc --> runtime
+    chat_svc --> runtime
+    signing_svc --> runtime
+    runtime --> registry
+    registry --> guarded
+    runtime --> chat_llm
+    chat_llm --> litellm_rt
+    litellm_rt --> oai
+    litellm_rt --> ant
+    runtime --> react
+    react --> tools
+    react --> oai
+    cag --> registry
+    cag --> chat_llm
+    gw --> runtime
+    analysis_svc --> sql
+    tools --> sql

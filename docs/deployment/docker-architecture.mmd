@@ -1,0 +1,47 @@
+flowchart TB
+    subgraph host ["Host (Docker Desktop)"]
+        browser["Navegador del usuario"]
+
+        subgraph compose ["docker compose"]
+            subgraph web_ctr ["legalrent-web :8080"]
+                nginx["nginx:80"]
+                static["React build estático"]
+                nginx --> static
+            end
+
+            subgraph api_ctr ["legalrent-api :8000"]
+                uvicorn["Uvicorn + FastAPI"]
+                ai["AIRuntime in-process"]
+                uvicorn --> ai
+            end
+
+            subgraph sql_ctr ["legalrent-sqlserver :1433"]
+                mssql["SQL Server 2022"]
+            end
+
+            subgraph init_ctr ["legalrent-db-init (job)"]
+                sqlcmd["init-db.sh + sqlcmd"]
+            end
+        end
+
+        vol_sql[("sqlserver_data")]
+        vol_api[("api_storage")]
+    end
+
+    subgraph external ["Servicios externos"]
+        llm["OpenAI / Anthropic / Azure"]
+        acs["ACS Email"]
+    end
+
+    browser -->|"localhost:8080"| nginx
+    browser -->|"localhost:8000/docs"| uvicorn
+    nginx -->|"/api proxy SSE"| uvicorn
+    uvicorn -->|"pyodbc"| mssql
+    sqlcmd --> mssql
+    init_ctr -.-> sql_ctr
+    api_ctr -.-> init_ctr
+    web_ctr -.-> api_ctr
+    mssql --- vol_sql
+    api_ctr --- vol_api
+    ai --> llm
+    ai --> acs

@@ -1,0 +1,8 @@
+.docx-wrapper {
+  background: #fff;
+  padding: 24px;
+}
+
+.docx-wrapper section.docx {
+  margin-bottom: 16px;
+}

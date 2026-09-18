@@ -1,0 +1,7 @@
+{
+  "prompt_id": "contract-analysis-v3-cag",
+  "provider": "heuristic",
+  "case_ids": [
+    "jalisco_deposito_alto"
+  ]
+}

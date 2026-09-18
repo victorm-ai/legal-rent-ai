@@ -1,0 +1,73 @@
+{
+  "prompt_id": "contract-analysis-v3-cag",
+  "provider": "heuristic",
+  "model": "heuristic-rules-v3",
+  "general_risk": "high",
+  "extracted_fields": {
+    "arrendador": "Inmobiliaria Jalisco S.A. de C.V.",
+    "arrendatario": "Juan Perez Lopez",
+    "deposito": "$95,000.00",
+    "duracion_meses": "12",
+    "fecha_fin": "31/12/2026",
+    "fecha_inicio": "01/01/2026",
+    "garantia": "garantia de $95,000.00",
+    "inmueble_direccion": "Calle Reforma 123, Guadalajara, Jalisco.",
+    "inmueble_uso": "para oficinas.",
+    "jurisdiccion": "Jalisco",
+    "renta_mensual": "$45,000.00"
+  },
+  "findings": [
+    {
+      "finding_type": "missing_clause",
+      "severity": "high",
+      "title": "Potentially missing jurisdiction clause"
+    },
+    {
+      "finding_type": "missing_clause",
+      "severity": "medium",
+      "title": "Jurisdiction declared without dedicated clause"
+    },
+    {
+      "finding_type": "missing_clause",
+      "severity": "medium",
+      "title": "No insurance clause identified"
+    },
+    {
+      "finding_type": "missing_clause",
+      "severity": "medium",
+      "title": "Potentially missing maintenance clause"
+    },
+    {
+      "finding_type": "missing_clause",
+      "severity": "medium",
+      "title": "Potentially missing penalties clause"
+    },
+    {
+      "finding_type": "missing_clause",
+      "severity": "medium",
+      "title": "Potentially missing renewal clause"
+    },
+    {
+      "finding_type": "missing_clause",
+      "severity": "medium",
+      "title": "Potentially missing services clause"
+    },
+    {
+      "finding_type": "missing_clause",
+      "severity": "medium",
+      "title": "Potentially missing termination clause"
+    },
+    {
+      "finding_type": "obligation",
+      "severity": "low",
+      "title": "Tenant obligations identified"
+    },
+    {
+      "finding_type": "unfavorable_clause",
+      "severity": "high",
+      "title": "Security deposit exceeds two months' rent"
+    }
+  ],
+  "clauses_count": 6,
+  "summary_executive": "Executive summary — Lease eval case Analysis perspective: tenant. Overall risk: HIGH. Landlord: Inmobiliaria Jalisco S.A. de C.V.. Tenant: Juan Perez Lopez. Property: Calle Reforma 123, Guadalajara, Jalisco.. Monthly rent: $45,000.00. Security deposit: $95,000.00. Jurisdiction detected: Jalisco. 6 clauses identified for review. Priority findings: Potentially missing jurisdiction clause; Security deposit exceeds two months' rent; Potentially missing maintenance clause. This summary was generated automatically and requires professional legal review."
+}

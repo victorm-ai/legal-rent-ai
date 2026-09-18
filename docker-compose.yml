@@ -1,0 +1,95 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: legalrent-sqlserver
+    env_file:
+      - .env.docker
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    restart: unless-stopped
+
+  db-init:
+    # Same family as sqlserver; includes /opt/mssql-tools18/bin/sqlcmd (no separate tools image on MCR).
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: legalrent-db-init
+    user: "0:0"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    environment:
+      MSSQL_HOST: sqlserver
+      ACCEPT_EULA: "Y"
+    volumes:
+      - ./docs/database:/scripts:ro
+      - ./docker/db/init-db.sh:/init-db.sh:ro
+    entrypoint: ["/bin/bash", "/init-db.sh"]
+    restart: "no"
+
+  api:
+    build:
+      context: ${LEGALRENT_BUILD_CONTEXT:-.}
+      dockerfile: docker/backend/Dockerfile
+    container_name: legalrent-api
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env.docker
+      # Local secrets (OPENAI_API_KEY, etc.): .env overrides placeholders in .env.docker
+      - path: .env
+        required: false
+    environment:
+      DB_SERVER: sqlserver
+      DB_NAME: LegalRentAI
+      DB_DRIVER: ODBC Driver 18 for SQL Server
+      DB_TRUSTED_CONNECTION: "false"
+      HOST: 0.0.0.0
+      PORT: 8000
+      LEGAL_CAG_CORPUS_PATH: docs/legal-sources/cag-corpus-v1.md
+      FRONTEND_BASE_URL: http://localhost:8080
+      OCR_ENABLED: "false"
+    ports:
+      - "8000:8000"
+    volumes:
+      - api_storage:/app/backend/storage
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ${LEGALRENT_BUILD_CONTEXT:-.}
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: legalrent-web
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+  api_storage:

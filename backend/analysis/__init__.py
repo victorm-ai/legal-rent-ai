@@ -1,0 +1,1 @@
+"""Contract clause analysis module."""

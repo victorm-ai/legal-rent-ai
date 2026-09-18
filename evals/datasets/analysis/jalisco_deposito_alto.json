@@ -1,0 +1,20 @@
+{
+  "id": "jalisco_deposito_alto",
+  "description": "Arrendamiento Jalisco con depósito elevado vs renta (perspectiva arrendatario).",
+  "perspective": "tenant",
+  "title": "Lease eval case",
+  "contract_text": "\nCONTRATO DE ARRENDAMIENTO\n\nARRENDADOR: Inmobiliaria Jalisco S.A. de C.V.\nARRENDATARIO: Juan Perez Lopez\n\nINMUEBLE: Calle Reforma 123, Guadalajara, Jalisco.\n\nCLÁUSULA PRIMERA. OBJETO. El arrendador otorga el uso del inmueble para oficinas.\n\nCLÁUSULA SEGUNDA. RENTA. La renta mensual sera de $45,000.00 MXN pagadera por mes vencido.\n\nCLÁUSULA TERCERA. DEPOSITO. El arrendatario entregara un deposito en garantia de $95,000.00 MXN.\n\nCLÁUSULA CUARTA. VIGencia. El contrato tendra vigencia de 12 meses.\n\nCLÁUSULA QUINTA. JURISDICCIÓN. Para la interpretacion del presente contrato las partes se someten\na la jurisdiccion de los tribunales del Estado de Jalisco.\n\nFecha de inicio: 01/01/2026\nFecha de termino: 31/12/2026\n",
+  "must_extract": {
+    "renta_mensual": "45000",
+    "deposito": "95000",
+    "jurisdiccion": "Jalisco"
+  },
+  "must_findings": [
+    {
+      "finding_type": "unfavorable_clause",
+      "severity_min": "medium"
+    }
+  ],
+  "judge_required": false,
+  "judge_mode": "comparative"
+}

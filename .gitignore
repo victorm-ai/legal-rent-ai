@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# VS Code
+.vscode/
+
+# IDE
+.idea/
+
+# Entorno de desarrollo
+.env
+.env.local
+.env.docker
+
+# Archivos temporales
+tmp/
+temp/
+backend/storage/reports/
+backend/storage/llm-runs/
+evals/runs/
+*.log
+
+# Artefacto accidental de sincronización (Dropbox)
+DropboxLife/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.env.local
+*.tsbuildinfo
+
+# Python test cache
+.pytest_cache/
+
+# Configuración sensible
+secrets/
+credentials.json
+config.json

@@ -1,0 +1,44 @@
+# Referencia histórica — instalar dependencias con: pip install -e ".[dev]"
+# Fuente de verdad: pyproject.toml
+
+# dependencies for auth module (rf-01)
+PyJWT>=2.8.0
+
+# dependencies for API
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# document processing
+PyPDF2>=3.0.0
+python-docx>=0.8.11
+pdfplumber>=0.9.0
+pytesseract>=0.3.10
+Pillow>=10.0.0
+pymupdf>=1.23.0
+
+# LLM / AI (SDK v3+ — v1.x sin soporte)
+openai>=3.8.0
+# litellm optional (chat/analysis use OpenAI/Anthropic SDKs directly; see llm/litellm_runtime.py)
+# litellm>=1.55.0
+azure-identity>=1.15.0
+anthropic>=0.7.0
+
+# Vector Database / Embeddings
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# Data Validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Database
+pyodbc>=5.0.0
+
+# Utilities
+python-dotenv>=1.0.0
+structlog>=24.1.0
+httpx>=0.24.0  # For async HTTP requests
+
+# Reports
+fpdf2>=2.8.0
