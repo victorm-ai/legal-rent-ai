@@ -217,8 +217,8 @@ class ChatService:
         if not rows:
             return ""
         lines = [
-            "Tabla comparativa entre contrato original y contrato editado:",
-            "Dato | Original | Editado | Diferencia",
+            "Comparison table between original and edited contract:",
+            "Field | Original | Edited | Difference",
         ]
         for row in rows:
             original = (row.get("original_value") or "—").replace("\n", " ")
@@ -228,7 +228,7 @@ class ChatService:
             lines.append(f"{item_key} | {original} | {new_value} | {difference}")
         summary = revision_comparison.get("summary")
         if summary:
-            lines.insert(1, f"Resumen: {summary}")
+            lines.insert(1, f"Summary: {summary}")
         return "\n".join(lines)
 
     @staticmethod

@@ -68,7 +68,7 @@ function reviewAuthorLabel(message: ReviewMessage, currentUserId?: string): stri
 
   if (message.user_id === currentUserId) {
 
-    return 'Tú';
+    return 'You';
 
   }
 
@@ -372,7 +372,7 @@ export default function LawyerCommunicationDialog({
 
       <DialogTitle>
 
-        {isLawyer ? 'Comunicación con cliente' : 'Comunicación con abogado'}
+        {isLawyer ? 'Client communication' : 'Lawyer communication'}
 
         {contractTitle ? ` — ${contractTitle}` : ''}
 
@@ -398,9 +398,9 @@ export default function LawyerCommunicationDialog({
 
             {isLawyer
 
-              ? 'Mensajes del cliente sobre este contrato. Las respuestas quedan guardadas en el expediente.'
+              ? 'Messages from the client about this contract. Replies are saved in the case file.'
 
-              : 'Indique su decisión o comentarios para el abogado. Los mensajes quedan guardados en el expediente.'}
+              : 'Share your decision or comments for the lawyer. Messages are saved in the case file.'}
 
           </Typography>
 
@@ -410,9 +410,9 @@ export default function LawyerCommunicationDialog({
 
               {isLawyer
 
-                ? 'El contrato aún está en borrador; el cliente debe enviarlo a revisión legal.'
+                ? 'The contract is still a draft; the client must send it for legal review.'
 
-                : 'Envíe el contrato a revisión legal para comunicarse con el abogado.'}
+                : 'Send the contract for legal review to message the lawyer.'}
 
             </Alert>
 
@@ -434,7 +434,7 @@ export default function LawyerCommunicationDialog({
 
               <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
 
-                Aún no hay mensajes en este hilo.
+                No messages in this thread yet.
 
               </Typography>
 
@@ -470,7 +470,7 @@ export default function LawyerCommunicationDialog({
 
                   {message.created_at
 
-                    ? ` · ${new Date(message.created_at).toLocaleString('es-MX')}`
+                    ? ` · ${new Date(message.created_at).toLocaleString('en-US')}`
 
                     : ''}
 
@@ -508,9 +508,9 @@ export default function LawyerCommunicationDialog({
 
                   isLawyer
 
-                    ? 'Escriba su respuesta al cliente…'
+                    ? 'Write your reply to the client…'
 
-                    : 'Escriba su decisión o comentario para el abogado…'
+                    : 'Write your decision or comment for the lawyer…'
 
                 }
 
@@ -542,7 +542,7 @@ export default function LawyerCommunicationDialog({
 
               >
 
-                Enviar
+                Send
 
               </Button>
 

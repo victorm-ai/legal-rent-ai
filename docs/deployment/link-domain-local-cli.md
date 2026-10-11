@@ -1,67 +1,67 @@
-# Vincular dominio ACS desde tu PC (Azure CLI)
+# Link ACS domain from your PC (Azure CLI)
 
-Sí: puedes corregir **`DomainNotLinked`** en local con **Azure CLI** + login interactivo (no hace falta entrar al portal si prefieres terminal).
+Yes: you can fix **`DomainNotLinked`** locally with **Azure CLI** + interactive login (no portal required if you prefer the terminal).
 
 ## 1. Azure CLI
 
-Si no lo tienes:
+If you do not have it:
 
 ```powershell
 winget install -e --id Microsoft.AzureCLI
 ```
 
-Cierra y abre PowerShell para que reconozca `az`.
+Close and reopen PowerShell so it recognizes `az`.
 
 ## 2. Login (management)
 
-A veces `az account show` funciona pero los comandos de **Communication** piden un token con scope de **management**. Ejecuta:
+Sometimes `az account show` works but **Communication** commands need a token with **management** scope. Run:
 
 ```powershell
 az logout
 az login --tenant "01ea369a-621c-4b70-a22c-b9c52c2076d4" --scope "https://management.core.windows.net//.default"
 ```
 
-Alternativa con código en el navegador:
+Alternative with browser code:
 
 ```powershell
 az login --tenant "01ea369a-621c-4b70-a22c-b9c52c2076d4" --scope "https://management.core.windows.net//.default" --use-device-code
 ```
 
-Abre https://login.microsoft.com/device e introduce el código que muestra la terminal.
+Open https://login.microsoft.com/device and enter the code shown in the terminal.
 
-Usa la cuenta que tenga acceso al grupo **`Dev-Kanbanboard-app`**.
+Use the account that has access to group **`Dev-Kanbanboard-app`**.
 
-## 3. Extensión communication
+## 3. Communication extension
 
 ```powershell
 az extension add --name communication --yes
 ```
 
-## 4. Enlazar dominio (automático)
+## 4. Link domain (automated)
 
-Desde la raíz del repo:
+From repo root:
 
 ```powershell
 .\scripts\windows\link_acs_email_domain.ps1
 ```
 
-El script:
+The script:
 
-- Lista dominios de **`kanban-email-service`**
-- Busca el FQDN `1994c775-bd8e-439f-9132-a444ad76b9b4.us1.azurecomm.net`
-- Ejecuta `az communication update` en **`kanban-communication-service`**
+- Lists domains for **`kanban-email-service`**
+- Finds FQDN `1994c775-bd8e-439f-9132-a444ad76b9b4.us1.azurecomm.net`
+- Runs `az communication update` on **`kanban-communication-service`**
 
-## 5. Verificar envío
+## 5. Verify sending
 
 ```powershell
 python scripts/azure/probe_acs_email_sender.py code.zemoreno@gmail.com
 ```
 
-Debe imprimir `OK`. Reinicia el backend y prueba **Marcar como Terminado**.
+Should print `OK`. Restart the backend and test **Mark as Terminated**.
 
-## 6. Comando manual (si el script falla)
+## 6. Manual command (if the script fails)
 
-Sustituye `{subscription-id}` y confirma el nombre del recurso dominio (a menudo `AzureManagedDomain`):
+Replace `{subscription-id}` and confirm the domain resource name (often `AzureManagedDomain`):
 
 ```powershell
 az communication update `
@@ -70,12 +70,12 @@ az communication update `
   --linked-domains "/subscriptions/{subscription-id}/resourceGroups/Dev-Kanbanboard-app/providers/Microsoft.Communication/emailServices/kanban-email-service/domains/AzureManagedDomain"
 ```
 
-## Errores frecuentes
+## Common errors
 
-| Error | Qué hacer |
+| Error | What to do |
 |-------|-----------|
-| `AADSTS9002313` / invalid request | Repetir `az login` con el `--scope` de management (paso 2). |
-| `Authorization failed` | Tu usuario no tiene rol en `Dev-Kanbanboard-app`; pide Contributor en el RG. |
-| Sigue `DomainNotLinked` tras el script | Comprueba `az communication show ... --query properties.linkedDomains` no esté vacío. |
+| `AADSTS9002313` / invalid request | Repeat `az login` with management `--scope` (step 2). |
+| `Authorization failed` | Your user lacks a role on `Dev-Kanbanboard-app`; request Contributor on the RG. |
+| Still `DomainNotLinked` after script | Check `az communication show ... --query properties.linkedDomains` is not empty. |
 
-Referencia: [Connect email domain](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/connect-email-communication-resource).
+Reference: [Connect email domain](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/connect-email-communication-resource).

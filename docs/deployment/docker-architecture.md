@@ -1,60 +1,60 @@
-# Arquitectura Docker — Legal Rent AI
+# Docker architecture — Legal Rent AI
 
-Vista de contenedores, red y datos para el stack local definido en [`docker-compose.yml`](../../docker-compose.yml). Guía operativa: [docker.md](./docker.md).
+Container, network, and data view for the local stack defined in [`docker-compose.yml`](../../docker-compose.yml). Operational guide: [docker.md](./docker.md).
 
-## Diagrama de arquitectura
+## Architecture diagram
 
-> **Cómo ver el diagrama:** imagen PNG (abajo), **ASCII** o bloque *Mermaid* (GitHub / VS Code preview / [mermaid.live](https://mermaid.live)).
+> **How to view the diagram:** PNG image (below), **ASCII**, or *Mermaid* block (GitHub / VS Code preview / [mermaid.live](https://mermaid.live)).
 
-![Arquitectura Docker Compose](./docker-architecture.png)
+![Docker Compose architecture](./docker-architecture.png)
 
-### Vista ASCII (siempre visible)
+### ASCII view (always visible)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  Navegador                                                                   │
+│  Browser                                                                     │
 │    http://localhost:8080  ──►  legalrent-web (nginx :80)                     │
-│         │                         │  SPA React (dist/)                       │
+│         │                         │  React SPA (dist/)                       │
 │         │                         │  /api/* ──proxy SSE──►                   │
 │         │                         ▼                                          │
 │         │              legalrent-api (Uvicorn :8000)                         │
-│         │                         │  FastAPI + AIRuntime (mismo proceso)     │
+│         │                         │  FastAPI + AIRuntime (same process)     │
 │         │                         ├── pyodbc ──► legalrent-sqlserver :1433     │
-│         │                         │              BD LegalRentAI                │
+│         │                         │              LegalRentAI DB                │
 │         │                         │              ▲                           │
-│         │                         │              │ DDL/seed (job único)      │
+│         │                         │              │ DDL/seed (one-off job)      │
 │         │                         │         legalrent-db-init                │
-│         │                         ├── volumen api_storage (reportes, runs)   │
+│         │                         ├── volume api_storage (reports, runs)   │
 │         └── localhost:8000/docs ──┘                                          │
 │                                                                               │
-│  sqlserver_data (volumen) ◄── persistencia SQL                               │
+│  sqlserver_data (volume) ◄── SQL persistence                               │
 │                                                                               │
-│  Externo (HTTPS): OpenAI / Anthropic / Azure OpenAI · ACS Email (opcional)   │
+│  External (HTTPS): OpenAI / Anthropic / Azure OpenAI · ACS Email (optional)   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Vista Mermaid (renderizada en GitHub / VS Code)
+### Mermaid view (rendered on GitHub / VS Code)
 
 ```mermaid
 flowchart TB
     subgraph host ["Host (Docker Desktop)"]
-        browser["Navegador del usuario"]
+        browser["User browser"]
 
         subgraph compose ["docker compose"]
             subgraph web_ctr ["legalrent-web :8080"]
                 nginx["nginx:80"]
-                static["React build estático"]
+                static["Static React build"]
                 nginx --> static
             end
 
             subgraph api_ctr ["legalrent-api :8000"]
                 uvicorn["Uvicorn + FastAPI"]
-                ai["AIRuntime in-process<br/>llm · guardrails · CAG · agentes"]
+                ai["AIRuntime in-process<br/>llm · guardrails · CAG · agents"]
                 uvicorn --> ai
             end
 
             subgraph sql_ctr ["legalrent-sqlserver :1433"]
-                mssql["SQL Server 2022<br/>BD LegalRentAI"]
+                mssql["SQL Server 2022<br/>LegalRentAI DB"]
             end
 
             subgraph init_ctr ["legalrent-db-init (job)"]
@@ -62,20 +62,20 @@ flowchart TB
             end
         end
 
-        vol_sql[("Volumen sqlserver_data")]
-        vol_api[("Volumen api_storage<br/>reportes · llm-runs")]
+        vol_sql[("Volume sqlserver_data")]
+        vol_api[("Volume api_storage<br/>reports · llm-runs")]
     end
 
-    subgraph external ["Servicios externos (HTTPS)"]
+    subgraph external ["External services (HTTPS)"]
         llm["OpenAI / Anthropic / Azure OpenAI"]
-        acs["Azure Communication Email<br/>(opcional)"]
+        acs["Azure Communication Email<br/>(optional)"]
     end
 
     browser -->|"http://localhost:8080"| nginx
-    browser -->|"Swagger directo<br/>localhost:8000/docs"| uvicorn
+    browser -->|"Swagger direct<br/>localhost:8000/docs"| uvicorn
     nginx -->|"/api/* proxy SSE<br/>strip /api"| uvicorn
     uvicorn -->|"pyodbc TDS"| mssql
-    sqlcmd -->|"DDL + seed + migraciones"| mssql
+    sqlcmd -->|"DDL + seed + migrations"| mssql
     init_ctr -.->|"depends_on healthy"| sql_ctr
     api_ctr -.->|"depends_on completed"| init_ctr
     web_ctr -.->|"depends_on healthy"| api_ctr
@@ -85,54 +85,54 @@ flowchart TB
     ai --> acs
 ```
 
-## Servicios
+## Services
 
-| Servicio Compose | Contenedor | Puerto host | Función |
+| Compose service | Container | Host port | Role |
 | ---------------- | ---------- | ----------- | ------- |
-| `web` | `legalrent-web` | **8080** → 80 | SPA React; nginx sirve `dist/` y reenvía `/api` al backend |
-| `api` | `legalrent-api` | **8000** → 8000 | API REST, pipeline de análisis, chat SSE, agente de firma |
-| `sqlserver` | `legalrent-sqlserver` | **1433** → 1433 | Persistencia relacional + binarios de documentos |
-| `db-init` | `legalrent-db-init` | — | Job único: scripts en `docs/database/` montados en `/scripts` |
+| `web` | `legalrent-web` | **8080** → 80 | React SPA; nginx serves `dist/` and forwards `/api` to backend |
+| `api` | `legalrent-api` | **8000** → 8000 | REST API, analysis pipeline, chat SSE, signing agent |
+| `sqlserver` | `legalrent-sqlserver` | **1433** → 1433 | Relational persistence + document binaries |
+| `db-init` | `legalrent-db-init` | — | One-off job: scripts in `docs/database/` mounted at `/scripts` |
 
-## Flujo de una petición típica
+## Typical request flow
 
-1. El usuario abre **http://localhost:8080** (contenedor `web`).
-2. El frontend fue compilado con `VITE_API_URL=/api`; las llamadas van a **mismo origen** `/api/...`.
-3. **nginx** (`docker/frontend/default.conf.template`) hace `proxy_pass` a `http://api:8000/` (SSE sin buffering para chat).
-4. **FastAPI** en `api` lee/escribe **SQL Server** (`DB_SERVER=sqlserver`, auth `sa` + `MSSQL_SA_PASSWORD`).
-5. Análisis y chat invocan **AIRuntime** en el mismo proceso (no hay contenedor IA separado en Docker local).
-6. Reportes y trazas LLM se escriben en **`api_storage`** → `/app/backend/storage` dentro del contenedor.
+1. User opens **http://localhost:8080** (`web` container).
+2. Frontend was built with `VITE_API_URL=/api`; calls go to **same origin** `/api/...`.
+3. **nginx** (`docker/frontend/default.conf.template`) `proxy_pass` to `http://api:8000/` (SSE without buffering for chat).
+4. **FastAPI** in `api` reads/writes **SQL Server** (`DB_SERVER=sqlserver`, auth `sa` + `MSSQL_SA_PASSWORD`).
+5. Analysis and chat invoke **AIRuntime** in the same process (no separate AI container in local Docker).
+6. Reports and LLM traces are written to **`api_storage`** → `/app/backend/storage` inside the container.
 
-## Imágenes y contexto de build
+## Images and build context
 
-| Dockerfile | Contenido relevante |
+| Dockerfile | Relevant content |
 | ---------- | ------------------- |
-| [`docker/backend/Dockerfile`](../../docker/backend/Dockerfile) | Python 3.11, ODBC 18, Tesseract, `pip install .`, corpus CAG copiado al image |
-| [`docker/frontend/Dockerfile`](../../docker/frontend/Dockerfile) | Node 20 build → nginx Alpine + plantilla de proxy |
+| [`docker/backend/Dockerfile`](../../docker/backend/Dockerfile) | Python 3.11, ODBC 18, Tesseract, `pip install .`, CAG corpus copied into image |
+| [`docker/frontend/Dockerfile`](../../docker/frontend/Dockerfile) | Node 20 build → nginx Alpine + proxy template |
 
-Variable **`LEGALRENT_BUILD_CONTEXT`**: permite build desde copia en `%TEMP%` cuando el repo está en Dropbox ([`scripts/docker/docker-up.ps1`](../../scripts/docker/docker-up.ps1)).
+**`LEGALRENT_BUILD_CONTEXT`** variable: allows build from a copy in `%TEMP%` when the repo is on Dropbox ([`scripts/docker/docker-up.ps1`](../../scripts/docker/docker-up.ps1)).
 
-## Configuración y secretos
+## Configuration and secrets
 
-| Origen | Uso |
+| Source | Use |
 | ------ | --- |
-| `.env.docker` | SQL (`MSSQL_SA_PASSWORD`, `DB_PASSWORD`), `SECRET_KEY`, URLs locales |
-| `.env` (opcional, montado en `api`) | Sobrescribe `OPENAI_API_KEY`, ACS, etc. |
+| `.env.docker` | SQL (`MSSQL_SA_PASSWORD`, `DB_PASSWORD`), `SECRET_KEY`, local URLs |
+| `.env` (optional, mounted on `api`) | Overrides `OPENAI_API_KEY`, ACS, etc. |
 
-El servicio `api` **no** incluye claves en la imagen; se inyectan en runtime.
+The `api` service **does not** embed keys in the image; they are injected at runtime.
 
-## Paridad con Azure
+## Parity with Azure
 
-| Docker local | Azure LIDR (Container Apps) |
+| Local Docker | Azure LIDR (Container Apps) |
 | ------------ | --------------------------- |
-| `web` + nginx `/api` | `legalrent-lidr-web` + proxy similar |
+| `web` + nginx `/api` | `legalrent-lidr-web` + similar proxy |
 | `api` | `legalrent-lidr-api` |
 | `sqlserver` | Azure SQL `legalrentlidr-sql` |
-| Volúmenes locales | Storage en BD + disco del contenedor / futuro Blob |
+| Local volumes | DB storage + container disk / future Blob |
 
-Ver [azure-resources.md](./azure-resources.md) y [README raíz — Uso en Azure](../../README.md#uso-en-azure-lidr).
+See [azure-resources.md](./azure-resources.md) and [root README — Azure usage](../../README.md#uso-en-azure-lidr).
 
-## Referencias
+## References
 
-- [docker.md](./docker.md) — arranque, variables, troubleshooting
-- [../architecture/ai-runtime-and-litellm.md](../architecture/ai-runtime-and-litellm.md) — capa IA dentro del contenedor `api`
+- [docker.md](./docker.md) — startup, variables, troubleshooting
+- [../architecture/ai-runtime-and-litellm.md](../architecture/ai-runtime-and-litellm.md) — AI layer inside the `api` container

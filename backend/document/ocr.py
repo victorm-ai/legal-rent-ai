@@ -1,8 +1,8 @@
-"""OCR para PDF escaneados (RF-07) — cascaron, fuera de alcance RF-20.
+"""OCR for scanned PDFs (RF-07) — stub; out of scope for RF-20.
 
-RF-20 identifica cláusulas relevantes a partir de texto utilizable obtenido
-mediante extracción nativa (PDF con capa de texto o DOCX). El MVP no requiere
-OCR; este módulo reserva la interfaz para una implementación futura.
+RF-20 identifies relevant clauses from usable text obtained via native extraction
+(PDF text layer or DOCX). The MVP does not require OCR; this module reserves the
+interface for a future implementation.
 """
 
 from __future__ import annotations
@@ -15,14 +15,14 @@ OCR_STATUS_STUB = "stub"
 
 
 def is_ocr_available() -> bool:
-    """Indica si hay un motor OCR operativo (False en MVP)."""
+    """Return whether an OCR engine is operational (False in MVP)."""
     return False
 
 
 def extract_text_from_scanned_pdf(content: bytes, max_pages: int = 30) -> tuple[str, int | None]:
-    """Placeholder OCR: no implementado; el MVP solo procesa archivos con texto nativo."""
+    """OCR placeholder: not implemented; MVP only processes files with native text."""
     logger.info(
-        "OCR stub: %s bytes, max_pages=%s (sin implementación; usar PDF/DOCX con texto)",
+        "OCR stub: %s bytes, max_pages=%s (not implemented; use PDF/DOCX with text)",
         len(content),
         max_pages,
     )

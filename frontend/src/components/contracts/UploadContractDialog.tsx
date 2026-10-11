@@ -134,7 +134,7 @@ export default function UploadContractDialog({
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Upload a lease contract in PDF or DOCX format (max 25 MB). The system
           will automatically detect whether the file is a main contract, annex,
-          or other related document, then start the analysis from the Arrendatario
+          or other related document, then start the analysis from the tenant
           perspective.
         </Typography>
 

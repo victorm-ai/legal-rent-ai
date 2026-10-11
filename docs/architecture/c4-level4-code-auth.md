@@ -1,8 +1,8 @@
-# C4 — Nivel 4: Código (módulo de autenticación)
+# C4 — Level 4: Code (authentication module)
 
-El **nivel 4** detalla clases a nivel de código. Este documento cubre **`backend/auth/`** (JWT, login, registro). Otros módulos críticos (`services/`, `llm/`) se describen en el [nivel 3](./c4-level3-components.md).
+**Level 4** details classes at code level. This document covers **`backend/auth/`** (JWT, login, registration). Other critical modules (`services/`, `llm/`) are described at [level 3](./c4-level3-components.md).
 
-## Diagrama de clases — `backend/auth/`
+## Class diagram — `backend/auth/`
 
 ```mermaid
 classDiagram
@@ -79,49 +79,49 @@ classDiagram
         CLIENT
     }
 
-    AuthService --> AuthUser : gestiona
-    AuthService --> JWTTransformer : genera tokens
-    AuthService --> UserCredentials : recibe
-    AuthService --> LoginResult : retorna
-    AuthUser --> PasswordHash : contiene
+    AuthService --> AuthUser : manages
+    AuthService --> JWTTransformer : generates tokens
+    AuthService --> UserCredentials : receives
+    AuthService --> LoginResult : returns
+    AuthUser --> PasswordHash : contains
     AuthUser --> User : to_user
-    AuthUser --> Role : tiene
-    LoginResult --> Token : opcional
+    AuthUser --> Role : has
+    LoginResult --> Token : optional
     JWTTransformer --> TokenPayload : encode decode
-    TokenPayload --> Role : incluye
-    User --> Role : tiene
+    TokenPayload --> Role : includes
+    User --> Role : has
 ```
 
-## Diagrama de secuencia — Login
+## Sequence diagram — Login
 
 ```mermaid
 sequenceDiagram
-    actor User as Usuario
+    actor User as User
     participant Web as React LoginForm
     participant API as POST auth login
     participant Svc as AuthService
     participant JWT as JWTTransformer
 
-    User->>Web: email y password
+    User->>Web: email and password
     Web->>API: JSON credentials
     API->>Svc: login UserCredentials
     Svc->>Svc: UserRepository.get_by_email
     Svc->>Svc: verify_password
-    alt credenciales validas
+    alt valid credentials
         Svc->>JWT: encode TokenPayload
         JWT-->>Svc: access_token
         Svc-->>API: LoginResult success
-        API-->>Web: 200 OK con token
-        Web->>Web: guardar en localStorage
+        API-->>Web: 200 OK with token
+        Web->>Web: save to localStorage
         Web-->>User: Dashboard
-    else credenciales invalidas
+    else invalid credentials
         Svc-->>API: LoginResult failure
         API-->>Web: 401 Invalid credentials
-        Web-->>User: mensaje de error
+        Web-->>User: error message
     end
 ```
 
-## Diagrama de secuencia — Request autenticado
+## Sequence diagram — Authenticated request
 
 ```mermaid
 sequenceDiagram
@@ -133,39 +133,39 @@ sequenceDiagram
     Web->>API: Authorization Bearer token
     API->>MW: Depends require_lawyer
     MW->>JWT: decode token
-    alt token valido y rol permitido
+    alt valid token and allowed role
         JWT-->>MW: TokenPayload
         MW-->>API: current_user
         API-->>Web: 200 response
-    else token invalido o rol insuficiente
-        MW-->>Web: 401 o 403
+    else invalid token or insufficient role
+        MW-->>Web: 401 or 403
     end
 ```
 
-## Archivos del módulo
+## Module files
 
-| Archivo | Responsabilidad |
+| File | Responsibility |
 |---------|-----------------|
-| `auth/service.py` | Lógica de login y registro vía `UserRepository` |
+| `auth/service.py` | Login and registration logic via `UserRepository` |
 | `auth/models.py` | `AuthUser`, `PasswordHash`, `Token`, `TokenPayload`, `LoginResult` |
 | `auth/token.py` | `JWTTransformer` — encode/decode HS256 |
-| `data/repositories/user_repository.py` | Persistencia de usuarios en SQL Server |
-| `api/routes/auth.py` | Endpoints REST |
-| `api/middleware/auth.py` | `RoleChecker`, decoradores por rol |
-| `auth/signing_schedule_token.py` | JWT de agenda de firma (query `token`, sin exp de sesión) |
+| `data/repositories/user_repository.py` | User persistence in SQL Server |
+| `api/routes/auth.py` | REST endpoints |
+| `api/middleware/auth.py` | `RoleChecker`, role decorators |
+| `auth/signing_schedule_token.py` | Signing schedule JWT (query `token`, not session exp) |
 
-Ver también módulo de contratos: [contracts.md](../contracts.md).
+See also contracts module: [contracts.md](../contracts.md).
 
-## Notas de implementación
+## Implementation notes
 
-- **Hashing**: PBKDF2-HMAC-SHA256, 100 000 iteraciones, salt aleatorio.
-- **JWT**: HS256, expiración configurable (default 60 min).
-- **Roles**: valores en inglés (`lawyer`, `client`).
-- **Persistencia**: usuarios en `app.users` vía `UserRepository` (pyodbc). Contratos y documentos: ver [contracts.md](../contracts.md).
+- **Hashing**: PBKDF2-HMAC-SHA256, 100,000 iterations, random salt.
+- **JWT**: HS256, configurable expiration (default 60 min).
+- **Roles**: English values (`lawyer`, `client`).
+- **Persistence**: users in `app.users` via `UserRepository` (pyodbc). Contracts and documents: see [contracts.md](../contracts.md).
 
-## Próximos diagramas de código (planificado)
+## Planned code diagrams
 
-| Módulo | Clases clave |
+| Module | Key classes |
 |--------|--------------|
 | `document/` | `validate_upload` — PDF/DOCX, 25 MB ✅ |
 | `analysis/` | `ClauseAnalyzer`, `RiskClassifier` |

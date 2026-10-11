@@ -1,6 +1,6 @@
 """Extract and persist plain text from PDF and DOCX files (RF-06).
 
-RF-20 consume el texto nativo extraído aquí; OCR escaneado queda en document/ocr.py (cascaron).
+RF-20 consumes native text extracted here; scanned OCR lives in document/ocr.py (stub).
 """
 
 from dataclasses import dataclass

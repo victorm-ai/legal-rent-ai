@@ -1,6 +1,6 @@
 # Frontend — Legal Rent AI
 
-SPA **React 19 + TypeScript + Vite + Material UI**. Consume la API en `backend/` (por defecto `http://localhost:8000`).
+SPA **React 19 + TypeScript + Vite + Material UI**. Consumes the API in `backend/` (default `http://localhost:8000`).
 
 ## Scripts
 
@@ -12,44 +12,44 @@ npm run preview
 npm test         # Vitest
 ```
 
-Desde la raíz del repo en Windows: `start_frontend.bat` → `scripts/windows/start_frontend.bat`.
+From the repo root on Windows: `start_frontend.bat` → `scripts/windows/start_frontend.bat`.
 
-En Docker, nginx sirve el build en **http://localhost:8080** con proxy `/api` al backend.
+In Docker, nginx serves the build at **http://localhost:8080** with `/api` proxy to the backend.
 
 ## Environment
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VITE_API_URL` | `http://localhost:8000` | Backend base URL (en Docker Compose suele ser `/api` vía nginx) |
+| `VITE_API_URL` | `http://localhost:8000` | Backend base URL (in Docker Compose typically `/api` via nginx) |
 
-Copia `frontend/.env.example` a `frontend/.env.local` para override.
+Copy `frontend/.env.example` to `frontend/.env.local` to override.
 
-## Rutas (`App.tsx`)
+## Routes (`App.tsx`)
 
-| Ruta | Componente | Auth |
+| Route | Component | Auth |
 |------|------------|------|
-| `/login` | `LoginForm` | Pública |
+| `/login` | `LoginForm` | Public |
 | `/dashboard` | `Dashboard` | JWT (`ProtectedRoute`) |
-| `/schedule-signing` | `ScheduleSigningPage` | Token en query (`?token=`), sin login |
+| `/schedule-signing` | `ScheduleSigningPage` | Query token (`?token=`), no login |
 
-## Estructura
+## Structure
 
 ```
 src/
 ├── App.tsx
 ├── config.ts               # API base URL
-├── theme.ts                # Paleta indigo (MUI); tema por rol
+├── theme.ts                # Indigo palette (MUI); role-based theme
 ├── context/
-│   └── AuthContext.tsx     # Sesión JWT (localStorage)
-├── services/               # Cliente HTTP (incl. SSE chat)
+│   └── AuthContext.tsx     # JWT session (localStorage)
+├── services/               # HTTP client (incl. SSE chat)
 ├── types/
 └── components/
     ├── auth/               # Login, ProtectedRoute, RootRedirect
     ├── layout/             # Header, Footer
-    ├── dashboard/          # Dashboard principal
+    ├── dashboard/          # Main dashboard
     ├── login/
-    ├── signing/            # ScheduleSigningPage (agenda pública)
-    └── contracts/          # Upload, análisis, chat, comparación, cierre
+    ├── signing/            # ScheduleSigningPage (public schedule)
+    └── contracts/          # Upload, analysis, chat, comparison, closure
         ├── UploadContractDialog.tsx
         ├── AnalysisResultsDialog.tsx
         ├── DocumentViewerDialog.tsx
@@ -62,25 +62,25 @@ src/
         └── ChatMessageBubble.tsx / ChatFormattedMessage.tsx
 ```
 
-## Funcionalidad conectada a la API
+## API-connected functionality
 
-- Autenticación (`/auth/*`)
-- Listado y alta de contratos (multipart)
-- Visualización de documentos y texto extraído
-- Análisis y polling de status
-- Chat con **streaming SSE** (`POST /chat/sessions/{id}/messages/stream`)
-- Reportes y descargas (incl. tokens de descarga)
-- Comparación entre contratos y revisión editada
-- Mensajes cliente–abogado, notificaciones y estados RF-56
-- Cierre del expediente (`approved` → `terminated`) y flujo post-correo hacia agenda de firma
+- Authentication (`/auth/*`)
+- Contract listing and creation (multipart)
+- Document viewing and extracted text
+- Analysis and status polling
+- Chat with **SSE streaming** (`POST /chat/sessions/{id}/messages/stream`)
+- Reports and downloads (incl. download tokens)
+- Contract comparison and edited revision
+- Client–lawyer messages, notifications, and RF-56 states
+- Case closure (`approved` → `terminated`) and post-email flow to signing schedule
 
-## Notas
+## Notes
 
-- El backend debe estar en marcha (`python run_backend.py` desde la raíz del repo).
-- UI en **inglés**; documentación del producto en español en `docs/`.
-- Si el proyecto está en **Dropbox**, excluir `node_modules/` de la sincronización antes de `npm install`.
+- The backend must be running (`python run_backend.py` from the repo root).
+- UI in **English**; product documentation in English in `docs/`.
+- If the project is on **Dropbox**, exclude `node_modules/` from sync before `npm install`.
 
-## Documentación
+## Documentation
 
-- [API REST](../docs/api.md)
-- [README raíz](../README.md)
+- [REST API](../docs/api.md)
+- [Root README](../README.md)

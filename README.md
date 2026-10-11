@@ -1,257 +1,257 @@
-# Sistema de Análisis de Contratos de Arrendamiento en México — MVP
+# Mexico Residential Lease Contract Analysis System — MVP
 
-Sistema para analizar contratos de arrendamiento inmobiliario en México, con énfasis en Jalisco.
+System for analyzing residential lease contracts in Mexico, with emphasis on Jalisco.
 
-## Guía de uso (aplicación web)
+## User guide (web application)
 
-Manual paso a paso para **cliente** y **abogado** (login, carga de contratos, análisis, chat, revisión, cierre y firma):
+Step-by-step manual for **client** and **lawyer** (login, contract upload, analysis, chat, review, closure, and signing):
 
 - **PDF:** [Legal Rent AI Guide.pdf](./docs/guide/Legal%20Rent%20AI%20Guide.pdf)
 
-Entornos habituales: [Docker local](#docker-local) (`http://localhost:8080`) o [Azure (LIDR)](#uso-en-azure-lidr). Usa las [cuentas de prueba](#cuentas-de-prueba-desarrollo-local) de abajo.
+Typical environments: [Docker local](#docker-local) (`http://localhost:8080`) or [Azure (LIDR)](#usage-on-azure-lidr). Use the [test accounts](#test-accounts-local-development) below.
 
-## Flujo cliente–abogado (desde la carga del contrato)
+## Client–lawyer flow (from contract upload)
 
-Recorrido completo del expediente: carga y análisis IA, colaboración, estados del contrato (`draft` → `in_review` → `approved` → `terminated`) y coordinación de firma tras el cierre.
+End-to-end case journey: upload and AI analysis, collaboration, contract states (`draft` → `in_review` → `approved` → `terminated`), and signing coordination after closure.
 
-![Flujo de trabajo cliente y abogado — Legal Rent AI](./docs/cliente-abogado-flujo-contrato.png)
+![Client and lawyer workflow — Legal Rent AI](./docs/cliente-abogado-flujo-contrato.png)
 
-Archivo fuente: [`docs/cliente-abogado-flujo-contrato.png`](./docs/cliente-abogado-flujo-contrato.png). Detalle funcional en [`docs/requirements.md`](./docs/requirements.md#5-flujo-principal-completado) y [`docs/api.md`](./docs/api.md).
+Source file: [`docs/cliente-abogado-flujo-contrato.png`](./docs/cliente-abogado-flujo-contrato.png). Functional detail in [`docs/requirements.md`](./docs/requirements.md#5-main-flow-completed) and [`docs/api.md`](./docs/api.md).
 
-## Características del MVP
+## MVP features
 
-- Carga y extracción de texto de PDFs y DOCX
-- OCR para documentos escaneados
-- Extracción estructurada de información contractual
-- Análisis de cláusulas y detección de riesgos
-- Corpus legal autorizado (CAG) en prompts; RAG vectorial planificado
-- Chat contextual con el contrato
-- Generación de reportes
-- Notificaciones por correo al abogado (ACS Email / SMTP / modo dev)
-- Coordinación de firma tras cierre del expediente (agente + agenda pública con token)
+- PDF and DOCX upload and text extraction
+- OCR for scanned documents
+- Structured extraction of contractual information
+- Clause analysis and risk detection
+- Authorized legal corpus (CAG) in prompts; vector RAG planned
+- Contextual chat with the contract
+- Report generation
+- Email notifications to the lawyer (ACS Email / SMTP / dev mode)
+- Signing coordination after case closure (agent + public schedule with token)
 
-## Requisitos
+## Requirements
 
 - Python 3.11+
-- Azure OpenAI o proveedor LLM compatible
-- SQL Server 2019+ (local o Azure SQL) — ver [docs/database](./docs/database/README.md)
+- Azure OpenAI or compatible LLM provider
+- SQL Server 2019+ (local or Azure SQL) — see [docs/database](./docs/database/README.md)
 
-## Instalación
+## Installation
 
 ```bash
-# Crear entorno virtual
+# Create virtual environment
 python -m venv venv
 
-# Activar entorno virtual
-venv\Scripts\activate  # En Windows
+# Activate virtual environment
+venv\Scripts\activate  # On Windows
 
-# Instalar dependencias
+# Install dependencies
 pip install -e "."
 ```
 
-## Estructura del Proyecto
+## Project structure
 
 ```
-├── backend/             # API Python (FastAPI) y servicios
-│   ├── api/             # Rutas REST
-│   ├── auth/            # Autenticación (RF-01)
-│   ├── services/        # Casos de uso
-│   ├── llm/             # Proveedores LLM, prompts, chat
-│   ├── guardrails/      # Validación de dominio e inyección
-│   ├── rag/             # Corpus jurídico (CAG)
-│   ├── storage/         # Reportes y trazas LLM en runtime
-│   └── run_backend.py   # Arranque uvicorn (desde backend/)
+├── backend/             # Python API (FastAPI) and services
+│   ├── api/             # REST routes
+│   ├── auth/            # Authentication (RF-01)
+│   ├── services/        # Use cases
+│   ├── llm/             # LLM providers, prompts, chat
+│   ├── guardrails/      # Domain and injection validation
+│   ├── rag/             # Legal corpus (CAG)
+│   ├── storage/         # Reports and LLM traces at runtime
+│   └── run_backend.py   # uvicorn startup (from backend/)
 ├── frontend/            # React + Vite + Material UI
-├── docker/              # Dockerfiles e init de BD para Compose
-├── docs/                # Documentación (español); incluye guide/ (PDF de usuario)
-├── evals/               # Evaluación offline del análisis LLM (`python -m evals`)
-├── tests/               # Pruebas (unit, integration, smoke, load)
-├── scripts/             # Utilidades; ver scripts/README.md
-├── fixtures/            # Contratos de ejemplo (`sample-contracts/`)
-├── docker-compose.yml   # Stack local api + web + SQL Server
-├── run_backend.py       # Wrapper: inicia backend desde la raíz
-└── pyproject.toml       # Dependencias (`pip install -e .`)
+├── docker/              # Dockerfiles and DB init for Compose
+├── docs/                # Documentation (English); includes guide/ (user PDF)
+├── evals/               # Offline LLM analysis evaluation (`python -m evals`)
+├── tests/               # Tests (unit, integration, smoke, load)
+├── scripts/             # Utilities; see scripts/README.md
+├── fixtures/            # Sample contracts (`sample-contracts/`)
+├── docker-compose.yml   # Local stack api + web + SQL Server
+├── run_backend.py       # Wrapper: start backend from repo root
+└── pyproject.toml       # Dependencies (`pip install -e .`)
 ```
 
-### Ejecutar pruebas
+### Running tests
 
 ```bash
-pytest                    # suite completa bajo tests/
-pytest tests/unit         # pruebas sin BD (cuando aplique)
+pytest                    # full suite under tests/
+pytest tests/unit         # tests without DB (where applicable)
 python tests/smoke/auth_quick.py
 ```
 
-## Documentación
+## Documentation
 
-Índice central: [`docs/README.md`](./docs/README.md).
+Central index: [`docs/README.md`](./docs/README.md).
 
-| Tema | Enlace |
+| Topic | Link |
 |------|--------|
-| **Uso de la aplicación web** | [docs/guide/README.md](./docs/guide/README.md) · [PDF](./docs/guide/Legal%20Rent%20AI%20Guide.pdf) |
-| Backend (código) | [backend/README.md](./backend/README.md) |
+| **Web application usage** | [docs/guide/README.md](./docs/guide/README.md) · [PDF](./docs/guide/Legal%20Rent%20AI%20Guide.pdf) |
+| Backend (code) | [backend/README.md](./backend/README.md) |
 | Frontend | [frontend/README.md](./frontend/README.md) |
 | Scripts | [scripts/README.md](./scripts/README.md) |
-| API REST | [docs/api.md](./docs/api.md) |
+| REST API | [docs/api.md](./docs/api.md) |
 | Docker / Azure | [docs/deployment/docker.md](./docs/deployment/docker.md) |
-| Arquitectura Docker | [docs/deployment/docker-architecture.md](./docs/deployment/docker-architecture.md) |
-| IA, agentes y LiteLLM | [docs/architecture/ai-runtime-and-litellm.md](./docs/architecture/ai-runtime-and-litellm.md) |
-| Base de datos | [docs/database/README.md](./docs/database/README.md) |
-| Arquitectura C4 | [docs/architecture/README.md](./docs/architecture/README.md) |
-| Requerimientos | [docs/requirements.md](./docs/requirements.md) |
-| Autenticación | [docs/authentication.md](./docs/authentication.md) |
-| Contratos | [docs/contracts.md](./docs/contracts.md) |
+| Docker architecture | [docs/deployment/docker-architecture.md](./docs/deployment/docker-architecture.md) |
+| AI, agents, and LiteLLM | [docs/architecture/ai-runtime-and-litellm.md](./docs/architecture/ai-runtime-and-litellm.md) |
+| Database | [docs/database/README.md](./docs/database/README.md) |
+| C4 architecture | [docs/architecture/README.md](./docs/architecture/README.md) |
+| Requirements | [docs/requirements.md](./docs/requirements.md) |
+| Authentication | [docs/authentication.md](./docs/authentication.md) |
+| Contracts | [docs/contracts.md](./docs/contracts.md) |
 
-## Política de idiomas
+## Language policy
 
-| Ámbito | Idioma |
+| Scope | Language |
 |--------|--------|
-| Código fuente | Inglés |
-| Documentación (`docs/`, este README) | Español |
-| Interfaz web (`frontend/`) | Inglés |
-| API (mensajes y roles) | Inglés |
+| Source code | English |
+| Documentation (`docs/`, this README) | English |
+| Web UI (`frontend/`) | English |
+| API (messages and roles) | English |
 
-Los roles de usuario en la API usan los valores `lawyer` y `client`.
+User roles in the API use the values `lawyer` and `client`.
 
-## Configuración
+## Configuration
 
-Copia el archivo `.env.example` a `.env` y configura tus variables:
+Copy `.env.example` to `.env` and set your variables:
 
 ```bash
 copy .env.example .env
 ```
 
-**Proveedor LLM (LiteLLM):** por defecto `LLM_PROVIDER=openai` con `OPENAI_API_KEY`. Para Anthropic, define `LLM_PROVIDER=anthropic`, `ANTHROPIC_API_KEY` y opcionalmente `ANTHROPIC_MODEL` (p. ej. `claude-3-5-haiku-20241022`). Análisis y chat usan el mismo proveedor configurado. El chat en la UI consume `POST /chat/sessions/{id}/messages/stream` (SSE) para mostrar la respuesta en tiempo real.
+**LLM provider (LiteLLM):** default `LLM_PROVIDER=openai` with `OPENAI_API_KEY`. For Anthropic, set `LLM_PROVIDER=anthropic`, `ANTHROPIC_API_KEY`, and optionally `ANTHROPIC_MODEL` (e.g. `claude-3-5-haiku-20241022`). Analysis and chat use the same configured provider. UI chat consumes `POST /chat/sessions/{id}/messages/stream` (SSE) for real-time responses.
 
 ## Docker (local)
 
-Tres contenedores (`api`, `web`, `sqlserver`) + job de inicialización de BD.
+Three containers (`api`, `web`, `sqlserver`) + DB initialization job.
 
-- Guía operativa: [docs/deployment/docker.md](./docs/deployment/docker.md)
-- **Diagrama de arquitectura** (ASCII + Mermaid; Mermaid requiere preview GitHub/VS Code): [docs/deployment/docker-architecture.md](./docs/deployment/docker-architecture.md)
+- Operations guide: [docs/deployment/docker.md](./docs/deployment/docker.md)
+- **Architecture diagram** (ASCII + Mermaid; Mermaid requires GitHub/VS Code preview): [docs/deployment/docker-architecture.md](./docs/deployment/docker-architecture.md)
 
-## Capa de IA (AIRuntime + LiteLLM)
+## AI layer (AIRuntime + LiteLLM)
 
-Análisis, chat SSE y agente LangGraph de coordinación de firma pasan por **`AIRuntime`** y el registro de proveedores en `backend/llm/`, con abstracción unificada en `litellm_runtime` (OpenAI / Anthropic / Azure / heurístico).
+Analysis, SSE chat, and the LangGraph signing coordination agent go through **`AIRuntime`** and the provider registry in `backend/llm/`, with unified abstraction in `litellm_runtime` (OpenAI / Anthropic / Azure / heuristic).
 
-**Diagrama de alto nivel** (ASCII + Mermaid): [docs/architecture/ai-runtime-and-litellm.md](./docs/architecture/ai-runtime-and-litellm.md)
+**High-level diagram** (ASCII + Mermaid): [docs/architecture/ai-runtime-and-litellm.md](./docs/architecture/ai-runtime-and-litellm.md)
 
-En Windows, para guardar imágenes y disco virtual en **D:\Docker files** (no en C:):
+On Windows, to store images and the virtual disk on **D:\Docker files** (not C:):
 
 ```powershell
 .\scripts\docker\configure-docker-data-dir.ps1
-# Abrir Docker Desktop y esperar a que esté listo
+# Open Docker Desktop and wait until ready
 ```
 
 ```powershell
 copy .env.docker.example .env.docker
-# Ajustar MSSQL_SA_PASSWORD y DB_PASSWORD (mismo valor), OPENAI_API_KEY, SECRET_KEY
-# Si el repo está en Dropbox (Windows): .\scripts\docker\docker-up.ps1
+# Set MSSQL_SA_PASSWORD and DB_PASSWORD (same value), OPENAI_API_KEY, SECRET_KEY
+# If the repo is on Dropbox (Windows): .\scripts\docker\docker-up.ps1
 docker compose up --build
 ```
 
 UI: http://localhost:8080 — API: http://localhost:8000/docs
 
-## Uso en Azure (LIDR)
+## Usage on Azure (LIDR)
 
-Despliegue en el grupo de recursos **`lidr`** (Container Apps + Azure SQL). La SPA llama a la API vía **`/api`** en el mismo origen (equivalente a Docker/nginx).
+Deployment in resource group **`lidr`** (Container Apps + Azure SQL). The SPA calls the API via **`/api`** on the same origin (equivalent to Docker/nginx).
 
-| Recurso | URL |
+| Resource | URL |
 |--------|-----|
-| **Aplicación web** (login, dashboard) | https://legalrent-lidr-web.ashyhill-93ea1614.eastus2.azurecontainerapps.io |
-| **API REST** | https://legalrent-lidr-api.ashyhill-93ea1614.eastus2.azurecontainerapps.io |
+| **Web app** (login, dashboard) | https://legalrent-lidr-web.ashyhill-93ea1614.eastus2.azurecontainerapps.io |
+| **REST API** | https://legalrent-lidr-api.ashyhill-93ea1614.eastus2.azurecontainerapps.io |
 | **Swagger** | https://legalrent-lidr-api.ashyhill-93ea1614.eastus2.azurecontainerapps.io/docs |
 | **Health** | https://legalrent-lidr-api.ashyhill-93ea1614.eastus2.azurecontainerapps.io/health |
 
-Agenda de firma pública (enlace con token del correo post-cierre):  
+Public signing schedule (link with token from post-closure email):  
 `https://legalrent-lidr-web.ashyhill-93ea1614.eastus2.azurecontainerapps.io/schedule-signing?token=…`
 
-**Cuentas de prueba** (usuarios demo de `docs/database/seed.sql`; mismas credenciales que en local si la BD Azure se inicializó con el script de deploy):
+**Test accounts** (demo users from `docs/database/seed.sql`; same credentials as local if Azure DB was initialized with the deploy script):
 
-| Email | Contraseña | Rol (API) |
+| Email | Password | Role (API) |
 |-------|------------|-----------|
 | `abogado@contractes.com` | `abogado123` | `lawyer` |
 | `code.zemoreno@gmail.com` | `cliente123` | `client` |
 
-Flujo recomendado: entrar como **cliente**, subir un contrato y analizar; luego **abogado** para revisión, cierre o export de feedback.
+Recommended flow: sign in as **client**, upload and analyze a contract; then **lawyer** for review, closure, or feedback export.
 
-Documentación de infraestructura: [docs/deployment/azure-resources.md](./docs/deployment/azure-resources.md). Redespliegue: `scripts/azure/deploy-lidr.ps1`.
+Infrastructure documentation: [docs/deployment/azure-resources.md](./docs/deployment/azure-resources.md). Redeploy: `scripts/azure/deploy-lidr.ps1`.
 
-## Iniciar el Backend
+## Start the backend
 
 ```bash
-# Opción 1: Usar el script helper
+# Option 1: Use the helper script
 python run_backend.py
 
-# Opción 2: Directamente con uvicorn (desde backend/)
+# Option 2: Directly with uvicorn (from backend/)
 cd backend
 uvicorn api.app:app --reload --host 0.0.0.0 --port 8000
 
-# Verificar que funciona:
+# Verify it works:
 # http://localhost:8000/health
 # http://localhost:8000/docs (Swagger UI)
 ```
 
-## Iniciar el Frontend
+## Start the frontend
 
-Requisitos: **Node.js 18+** y npm.
+Requirements: **Node.js 18+** and npm.
 
 ```bash
-# Opción 1: Windows
+# Option 1: Windows
 start_frontend.bat
 
-# Opción 2: Manual
+# Option 2: Manual
 cd frontend
 npm install
 npm run dev
 
-# Abrir en tu navegador:
+# Open in your browser:
 # http://localhost:3000
 ```
 
-Stack del frontend: **React 19**, **TypeScript**, **Vite** y **Material UI (MUI)**.
+Frontend stack: **React 19**, **TypeScript**, **Vite**, and **Material UI (MUI)**.
 
-Para apuntar a un backend distinto, crea `frontend/.env.local`:
+To point at a different backend, create `frontend/.env.local`:
 
 ```bash
 VITE_API_URL=http://localhost:8000
 ```
 
-## Cuentas de prueba (desarrollo local)
+## Test accounts (local development)
 
-Mismas credenciales que en Azure (ver tabla anterior). Válidas tras ejecutar `setup_database.bat` o el seed en Docker/Azure.
+Same credentials as Azure (see table above). Valid after running `setup_database.bat` or seed in Docker/Azure.
 
-| Email | Contraseña | Rol (API) |
+| Email | Password | Role (API) |
 |-------|------------|-----------|
 | `abogado@contractes.com` | `abogado123` | `lawyer` |
 | `code.zemoreno@gmail.com` | `cliente123` | `client` |
 
-## Sistema de Colores
+## Color system
 
-El proyecto utiliza un sistema de colores consistente:
+The project uses a consistent color system:
 
-- **Primary**: Indigo (#4f46e5) - Para acciones primarias
-- **Success**: Emerald (#10b981) - Para estados positivos
-- **Warning**: Amber (#f59e0b) - Para alertas
-- **Danger**: Red (#ef4444) - Para errores y riesgos altos
+- **Primary**: Indigo (#4f46e5) — primary actions
+- **Success**: Emerald (#10b981) — positive states
+- **Warning**: Amber (#f59e0b) — alerts
+- **Danger**: Red (#ef4444) — errors and high risk
 
-## Características de la Interfaz
+## UI features
 
-- Diseño responsive (móvil, tablet, desktop)
-- Tema limpio y profesional con sombras suaves
-- Feedback visual para estados de carga y errores
-- Persistentencia de sesión con localStorage
-- UI moderna con gradientes sutiles
+- Responsive design (mobile, tablet, desktop)
+- Clean, professional theme with soft shadows
+- Visual feedback for loading and error states
+- Session persistence with localStorage
+- Modern UI with subtle gradients
 
 ## API
 
-Documentación completa: [`docs/api.md`](./docs/api.md). Swagger: `http://localhost:8000/docs`.
+Full documentation: [`docs/api.md`](./docs/api.md). Swagger: `http://localhost:8000/docs`.
 
-Incluye contratos, análisis IA, chat (SSE), reportes, comparaciones, revisión abogado, notificaciones, cierre del expediente y agenda de firma pública (`/public/signing-schedule`).
+Includes contracts, AI analysis, chat (SSE), reports, comparisons, lawyer review, notifications, case closure, and public signing schedule (`/public/signing-schedule`).
 
-### Evaluación offline del análisis LLM
+### Offline LLM analysis evaluation
 
 ```bash
 python -m evals --mode regression
 ```
 
-Casos y baselines en `evals/`; no expone endpoints HTTP.
+Cases and baselines in `evals/`; does not expose HTTP endpoints.

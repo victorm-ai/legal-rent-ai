@@ -12,17 +12,17 @@ from agents.signing_coordination.tools import build_signing_coordination_tools
 from config.settings import Settings, get_settings
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """Eres un agente de coordinación de firma para Legal Rent AI (México).
-Debes usar las herramientas en este orden lógico:
+SYSTEM_PROMPT = """You are a signing coordination agent for Legal Rent AI (Mexico).
+Use tools in this logical order:
 1) get_stored_revision_comparison
 2) list_lawyer_availability
 3) send_signing_coordination_email
 
-Reglas:
-- El resumen narrativo debe estar en español, tono profesional y claro.
-- NO inventes filas de la tabla comparativa; la tabla va en HTML generado por la herramienta de envío.
-- Menciona que el cliente, el abogado y el arrendador deben coordinar la firma formal presencial.
-- Usa las notas finales del abogado como contexto, sin alterar hechos contractuales."""
+Rules:
+- Write the narrative summary in English, professional and clear tone.
+- Do NOT invent comparison table rows; the table is included in HTML from the send tool.
+- Mention that the client, lawyer, and landlord must coordinate formal in-person signing.
+- Use the lawyer's closing notes as context without altering contractual facts."""
 
 
 class SigningCoordinationError(Exception):
@@ -72,10 +72,10 @@ def _run_deterministic(ctx: SigningCoordinationContext, settings: Settings) -> N
     tools["get_stored_revision_comparison"].invoke({})
     tools["list_lawyer_availability"].invoke({})
     narrative = (
-        f"Su expediente «{ctx.contract_title or 'contrato'}» fue cerrado administrativamente. "
-        "Adjuntamos la comparación entre el contrato original y la versión editada aprobada. "
-        "Por favor elija un horario en el enlace seguro para coordinar la firma presencial "
-        "junto con su abogado y el arrendador."
+        f"Your file «{ctx.contract_title or 'contract'}» was closed administratively. "
+        "We include the comparison between the original contract and the approved edited version. "
+        "Please choose a time slot using the secure link to coordinate in-person signing "
+        "with your lawyer and the landlord."
     )
     tools["send_signing_coordination_email"].invoke({"narrative_summary": narrative})
 
@@ -93,10 +93,10 @@ def run_signing_coordination_agent(ctx: SigningCoordinationContext, settings: Se
 
     agent = create_react_agent(model, tools)
     task = (
-        f"Contrato ID: {ctx.contract_id}\n"
-        f"Título: {ctx.contract_title or 'N/A'}\n"
-        f"Notas finales del abogado:\n{ctx.closure_notes}\n\n"
-        "Completa la coordinación: lee comparación de BD, lista disponibilidad y envía el correo."
+        f"Contract ID: {ctx.contract_id}\n"
+        f"Title: {ctx.contract_title or 'N/A'}\n"
+        f"Lawyer closing notes:\n{ctx.closure_notes}\n\n"
+        "Complete coordination: load comparison from DB, list availability, and send the email."
     )
     try:
         agent.invoke(

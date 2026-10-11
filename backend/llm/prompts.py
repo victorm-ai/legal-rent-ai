@@ -48,7 +48,7 @@ Respond ONLY with valid JSON matching this schema:
       ]
     }
   ],
-  "summary_executive": "Resumen ejecutivo de 2-4 párrafos en español claro para personas sin formación jurídica, mencionando hallazgos y recomendaciones clave",
+  "summary_executive": "2-4 paragraph executive summary in clear English for non-lawyers, mentioning key findings and recommendations",
   "general_risk": "low|medium|high"
 }
 Use field_name in Spanish snake_case as listed. finding_type legal_rule = grounded in law; best_practice = contractual recommendation.

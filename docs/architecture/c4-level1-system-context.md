@@ -1,64 +1,64 @@
-# C4 — Nivel 1: Contexto del sistema
+# C4 — Level 1: System context
 
-**Legal Rent AI** asiste la primera revisión de contratos de arrendamiento inmobiliario en México (prioridad Jalisco): extracción documental, análisis con IA, corpus legal (CAG), chat, reportes y colaboración cliente–abogado.
+**Legal Rent AI** supports first-pass review of real estate lease contracts in Mexico (Jalisco priority): document extraction, AI analysis, legal corpus (CAG), chat, reports, and client–lawyer collaboration.
 
-## Diagrama
+## Diagram
 
 ```mermaid
 C4Context
-    title Contexto - Legal Rent AI MVP
+    title Context - Legal Rent AI MVP
 
-    Person(cliente, "Cliente", "Sube contratos y consulta analisis")
-    Person(abogado, "Abogado", "Revisa hallazgos, aprueba, comunica")
+    Person(cliente, "Client", "Uploads contracts and reviews analysis")
+    Person(abogado, "Lawyer", "Reviews findings, approves, communicates")
 
-    System(legalRentAI, "Legal Rent AI", "Monorepo frontend + backend FastAPI")
+    System(legalRentAI, "Legal Rent AI", "Monorepo frontend + FastAPI backend")
 
-    System_Ext(llmProvider, "Proveedor LLM", "OpenAI, Anthropic, Azure...")
-    System_Ext(emailSystem, "Correo", "Azure Communication Services, SMTP o log dev")
+    System_Ext(llmProvider, "LLM provider", "OpenAI, Anthropic, Azure...")
+    System_Ext(emailSystem, "Email", "Azure Communication Services, SMTP or dev log")
     System_Ext(sqlServer, "SQL Server", "LegalRentAI")
-    System_Ext(legalCorpus, "Corpus juridico CAG", "Markdown curado en docs/")
+    System_Ext(legalCorpus, "CAG legal corpus", "Curated markdown in docs/")
 
-    Rel(cliente, legalRentAI, "Usa SPA", "HTTPS")
-    Rel(abogado, legalRentAI, "Revisa y aprueba", "HTTPS")
-    Rel(legalRentAI, sqlServer, "Persiste", "SQL")
-    Rel(legalRentAI, llmProvider, "Analisis y chat", "API")
-    Rel(legalRentAI, legalCorpus, "Grounding legal", "Archivo MD")
-    Rel(legalRentAI, emailSystem, "Notifica decisiones", "SMTP")
-    Rel(abogado, emailSystem, "Recibe avisos", "Email")
+    Rel(cliente, legalRentAI, "Uses SPA", "HTTPS")
+    Rel(abogado, legalRentAI, "Reviews and approves", "HTTPS")
+    Rel(legalRentAI, sqlServer, "Persists", "SQL")
+    Rel(legalRentAI, llmProvider, "Analysis and chat", "API")
+    Rel(legalRentAI, legalCorpus, "Legal grounding", "MD file")
+    Rel(legalRentAI, emailSystem, "Notifies decisions", "SMTP")
+    Rel(abogado, emailSystem, "Receives alerts", "Email")
 ```
 
-## Actores
+## Actors
 
-| Actor | Rol API | Responsabilidad |
+| Actor | API role | Responsibility |
 |-------|---------|-----------------|
-| Cliente | `client` | Carga contratos, ejecuta análisis (perspectiva arrendatario), chat, reportes, notifica al abogado |
-| Abogado | `lawyer` | Revisa hallazgos, sube revisión editada, compara versiones, aprueba análisis, cierra expediente (`terminated`), export de feedback |
+| Client | `client` | Upload contracts, run analysis (tenant perspective), chat, reports, notify lawyer |
+| Lawyer | `lawyer` | Review findings, upload edited revision, compare versions, approve analysis, close case (`terminated`), feedback export |
 
-> El rol `administrator` fue retirado del catálogo; operaciones de retención avanzadas quedan en servicios internos o futuros endpoints.
+> The `administrator` role was removed from the catalog; advanced retention operations remain in internal services or future endpoints.
 
-## Sistemas externos
+## External systems
 
-| Sistema | Uso en MVP |
+| System | MVP usage |
 |---------|------------|
-| Proveedor LLM | Extracción, cláusulas, riesgos, chat (LiteLLM) |
-| SQL Server | Usuarios, contratos, binarios, análisis, chat, logs |
-| Corpus CAG | `docs/legal-sources/cag-corpus-v1.md` — no RAG vectorial aún |
-| Correo | Notificaciones RF-50/51 y coordinación de firma (ACS Email preferido; fallback SMTP / log dev) |
+| LLM provider | Extraction, clauses, risks, chat (LiteLLM) |
+| SQL Server | Users, contracts, binaries, analyses, chat, logs |
+| CAG corpus | `docs/legal-sources/cag-corpus-v1.md` — no vector RAG yet |
+| Email | RF-50/51 notifications and signing coordination (ACS Email preferred; SMTP / dev log fallback) |
 
-## Alcance
+## Scope
 
-- **Dentro:** flujo arrendamiento inmobiliario MX, expediente por contrato, revisión abogado.
-- **Fuera (MVP):** multi-tenant, firma electrónica legalmente vinculante, ERP, API pública general, índice vectorial de leyes completas.
-- **Parcial:** agenda de firma vía enlace tokenizado (`/public/signing-schedule` + SPA `/schedule-signing`); confirmación simulada sin calendario persistente.
+- **In scope:** MX real estate lease flow, per-contract case file, lawyer review.
+- **Out of scope (MVP):** multi-tenant, legally binding e-signature, ERP, general public API, full-law vector index.
+- **Partial:** signing schedule via tokenized link (`/public/signing-schedule` + SPA `/schedule-signing`); simulated confirmation without persistent calendar.
 
-## Estado (septiembre 2026)
+## Status (September 2026)
 
-| Elemento | Estado |
+| Element | Status |
 |----------|--------|
-| Web + API + BD | ✅ Operativo en dev |
-| Análisis IA + CAG + guardrails | ✅ |
+| Web + API + DB | ✅ Operational in dev |
+| AI analysis + CAG + guardrails | ✅ |
 | Chat SSE | ✅ |
-| Coordinación de firma (agente + email + página pública) | ✅ (simulación de slots) |
-| Docker local + despliegue Azure LIDR | ✅ script `scripts/azure/deploy-lidr.ps1` |
-| Evals offline LLM | ✅ `python -m evals` (no expuesto en API) |
-| RAG embeddings | 📋 Planificado |
+| Signing coordination (agent + email + public page) | ✅ (simulated slots) |
+| Local Docker + Azure LIDR deployment | ✅ script `scripts/azure/deploy-lidr.ps1` |
+| Offline LLM evals | ✅ `python -m evals` (not exposed on API) |
+| RAG embeddings | 📋 Planned |

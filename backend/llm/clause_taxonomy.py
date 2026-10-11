@@ -21,7 +21,7 @@ CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
 
 ALL_CATEGORIES: frozenset[str] = frozenset(CATEGORY_KEYWORDS.keys())
 
-# RF-20: categorías contractuales detectables sobre texto nativo (PDF/DOCX, sin OCR).
+# RF-20: contract categories detectable on native text (PDF/DOCX, no OCR).
 RF20_RELEVANT_CATEGORIES: frozenset[str] = ALL_CATEGORIES
 
 RF20_CATEGORY_LABELS_ES: dict[str, str] = {

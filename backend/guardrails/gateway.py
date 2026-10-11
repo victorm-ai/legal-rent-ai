@@ -34,8 +34,8 @@ class GuardrailsGateway:
             raise GuardrailViolation(
                 code="not_lease_contract",
                 user_message=(
-                    "Este documento no parece un contrato de arrendamiento inmobiliario. "
-                    "LegalRentAI solo analiza contratos de arrendamiento."
+                    "This document does not appear to be a real property lease agreement. "
+                    "LegalRentAI only analyzes lease contracts."
                 ),
                 detail="lease_domain_check_failed",
             )
@@ -44,8 +44,8 @@ class GuardrailsGateway:
             raise GuardrailViolation(
                 code="prompt_injection",
                 user_message=(
-                    "El texto del documento contiene instrucciones no permitidas. "
-                    "Revise el archivo o contacte soporte."
+                    "The document text contains disallowed instructions. "
+                    "Review the file or contact support."
                 ),
                 detail=injection,
             )
@@ -62,8 +62,8 @@ class GuardrailsGateway:
             raise GuardrailViolation(
                 code="prompt_injection",
                 user_message=(
-                    "No puedo procesar instrucciones que intenten modificar el comportamiento del asistente. "
-                    "Formule preguntas sobre el contrato de arrendamiento o el análisis."
+                    "I cannot process instructions that attempt to change assistant behavior. "
+                    "Ask questions about the lease contract or its analysis."
                 ),
                 detail=injection,
             )
@@ -71,8 +71,8 @@ class GuardrailsGateway:
             raise GuardrailViolation(
                 code="off_topic",
                 user_message=(
-                    "Solo puedo responder preguntas relacionadas con este contrato de arrendamiento "
-                    "y su análisis (cláusulas, riesgos, partes, plazos, recomendaciones)."
+                    "I can only answer questions related to this lease contract "
+                    "and its analysis (clauses, risks, parties, terms, recommendations)."
                 ),
                 detail="chat_scope_check_failed",
             )

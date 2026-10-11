@@ -624,8 +624,8 @@ export default function Dashboard() {
                           <Chip
                             label={
                               existingEdited
-                                ? `${ANALYSIS_DOCUMENT_SCOPE_LABELS.lawyer_revision} · Comparado`
-                                : `${ANALYSIS_DOCUMENT_SCOPE_LABELS.lawyer_revision} · Pendiente`
+                                ? `${ANALYSIS_DOCUMENT_SCOPE_LABELS.lawyer_revision} · Compared`
+                                : `${ANALYSIS_DOCUMENT_SCOPE_LABELS.lawyer_revision} · Pending`
                             }
                             color={existingEdited ? 'info' : 'default'}
                             variant="outlined"

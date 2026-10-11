@@ -405,7 +405,7 @@ export default function DocumentViewerDialog({
       }
     }
 
-    setSuccessMessage('Versión editada subida correctamente. Reemplazó la revisión anterior.');
+    setSuccessMessage('Edited version uploaded successfully. It replaced the previous revision.');
   };
 
   const selectedDocument = sortedDocuments[selectedIndex];
@@ -450,7 +450,7 @@ export default function DocumentViewerDialog({
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              Perspectiva: {PERSPECTIVE_LABELS[contract.perspective] ?? contract.perspective}
+              Perspective: {PERSPECTIVE_LABELS[contract.perspective] ?? contract.perspective}
             </Typography>
             <ContractStatusSelect
               contract={contract}
@@ -605,15 +605,15 @@ export default function DocumentViewerDialog({
             onClick={handleUploadClick}
             disabled={uploading || loadingContract}
           >
-            {uploading ? 'Subiendo…' : 'Subir versión editada'}
+            {uploading ? 'Uploading…' : 'Upload edited version'}
           </Button>
         )}
         {selectedDocument && (
           <Button variant="outlined" onClick={() => void handleDownload()} disabled={downloading}>
-            {downloading ? 'Descargando…' : 'Descargar'}
+            {downloading ? 'Downloading…' : 'Download'}
           </Button>
         )}
-        <Button onClick={handleClose}>Cerrar</Button>
+        <Button onClick={handleClose}>Close</Button>
       </DialogActions>
     </Dialog>
   );

@@ -20,13 +20,13 @@ from services.contract_service import ContractAccessError, ContractNotFoundError
 logger = logging.getLogger(__name__)
 
 CLIENT_APPROVED_EDITED_CONTRACT_MESSAGE = (
-    "[Aprobación registrada] El cliente confirmó que acepta la versión editada del contrato. "
-    "El expediente quedó en estado «Aprobado»."
+    "[Approval recorded] The client confirmed acceptance of the edited contract version. "
+    "The file is now in «Approved» status."
 )
 
 LAWYER_SENT_EDITED_CONTRACT_MESSAGE = (
-    "[Versión editada enviada] El abogado subió una nueva versión editada del contrato. "
-    "Revise la comparación original vs. editado y, si está de acuerdo, márquela como aprobada."
+    "[Edited version sent] The lawyer uploaded a new edited contract version. "
+    "Review the original vs. edited comparison and, if you agree, mark it as approved."
 )
 
 

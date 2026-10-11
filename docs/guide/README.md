@@ -1,7 +1,7 @@
-# Guía de usuario — Legal Rent AI
+# User guide — Legal Rent AI
 
-| Documento | Descripción |
+| Document | Description |
 |-----------|-------------|
-| [Legal Rent AI Guide.pdf](./Legal%20Rent%20AI%20Guide.pdf) | Uso de la aplicación web (cliente y abogado) |
+| [Legal Rent AI Guide.pdf](./Legal%20Rent%20AI%20Guide.pdf) | Web application usage (client and lawyer) |
 
-URLs y credenciales demo: [README raíz — Guía de uso](../../README.md#guía-de-uso-aplicación-web).
+Demo URLs and credentials: [root README — User guide](../../README.md#user-guide-web-application).

@@ -1,76 +1,76 @@
-# Corregir error `DomainNotLinked` (correo ACS)
+# Fix `DomainNotLinked` error (ACS email)
 
-Cuando el abogado usa **Marcar como Terminado**, el agente intenta enviar correo real por Azure. Si aparece:
+When the lawyer uses **Mark as Terminated**, the agent tries to send real email via Azure. If you see:
 
 ```text
 (DomainNotLinked) The specified sender domain has not been linked.
 ```
 
-significa que **faltan dos cosas en Azure** (no es un bug de LangGraph):
+**two things are missing in Azure** (not a LangGraph bug):
 
-1. **Vincular** el dominio de email al recurso Communication Services.
-2. Poner en `.env` el **MailFrom real** (`donotreply@….azurecomm.net`), no `DoNotReply@legalrentai.local`.
+1. **Link** the email domain to the Communication Services resource.
+2. Set the **real MailFrom** in `.env` (`donotreply@….azurecomm.net`), not `DoNotReply@legalrentai.local`.
 
-El contrato **no queda terminado** (hay rollback a `approved`).
+The contract **is not terminated** (rollback to `approved`).
 
 ---
 
-## Paso 1 — Dominio en Email Communication Service
+## Step 1 — Domain in Email Communication Service
 
-1. [Portal Azure](https://portal.azure.com) → grupo **`Dev-Kanbanboard-app`**.
-2. Abre **`kanban-email-service`** (Email Communication Service).
-3. Menú **Provision domains** / **Domains**.
-4. Si no hay dominio: **Add domain** → **Azure managed domain** (nombre típico del recurso: `AzureManagedDomain`).
-5. Espera estado **Verified** / listo para enviar.
-6. Dominio de este proyecto (FQDN):
-   - `1994c775-bd8e-439f-9132-a444ad76b9b4.azurecomm.net` (sin `.us1`; confirmar en `az communication email domain show`)
-7. MailFrom en `.env`:
+1. [Azure Portal](https://portal.azure.com) → group **`Dev-Kanbanboard-app`**.
+2. Open **`kanban-email-service`** (Email Communication Service).
+3. Menu **Provision domains** / **Domains**.
+4. If no domain: **Add domain** → **Azure managed domain** (typical resource name: `AzureManagedDomain`).
+5. Wait for **Verified** / ready to send.
+6. Domain for this project (FQDN):
+   - `1994c775-bd8e-439f-9132-a444ad76b9b4.azurecomm.net` (without `.us1`; confirm with `az communication email domain show`)
+7. MailFrom in `.env`:
    - `DoNotReply@1994c775-bd8e-439f-9132-a444ad76b9b4.azurecomm.net`
 
 ---
 
-## Paso 2 — Conectar dominio al Communication Service
+## Step 2 — Connect domain to Communication Service
 
-1. Abre **`kanban-communication-service`** (Communication Services) en el mismo grupo de recursos.
-2. Menú **Email** → **Domains**.
+1. Open **`kanban-communication-service`** (Communication Services) in the same resource group.
+2. Menu **Email** → **Domains**.
 3. **Connect domain**.
-4. Elige suscripción, **`Dev-Kanbanboard-app`**, **`kanban-email-service`**, dominio verificado cuyo FQDN sea `1994c775-bd8e-439f-9132-a444ad76b9b4.us1.azurecomm.net` (recurso en portal a menudo `AzureManagedDomain`).
-5. Confirma. Debe aparecer en la lista de dominios conectados.
+4. Choose subscription, **`Dev-Kanbanboard-app`**, **`kanban-email-service`**, verified domain whose FQDN is `1994c775-bd8e-439f-9132-a444ad76b9b4.us1.azurecomm.net` (portal resource often named `AzureManagedDomain`).
+5. Confirm. It should appear in the connected domains list.
 
-> Communication Service y Email Service deben estar en la **misma región geográfica** (p. ej. United States).
+> Communication Service and Email Service must be in the **same geographic region** (e.g. United States).
 
 ---
 
-## Paso 3 — Actualizar `.env` local
+## Step 3 — Update local `.env`
 
-En la raíz del repo:
+At repo root:
 
 ```env
-AZURE_COMMUNICATION_SENDER_ADDRESS=donotreply@TU-GUID.azurecomm.net
+AZURE_COMMUNICATION_SENDER_ADDRESS=donotreply@YOUR-GUID.azurecomm.net
 NOTIFICATION_DEV_MODE=false
 ```
 
-(`AZURE_COMMUNICATION_CONNECTION_STRING` ya apunta a `kanban-communication-service`.)
+(`AZURE_COMMUNICATION_CONNECTION_STRING` already points to `kanban-communication-service`.)
 
-Reinicia el backend: `python run_backend.py`.
+Restart the backend: `python run_backend.py`.
 
 ---
 
-## Paso 4 — Probar
+## Step 4 — Test
 
 ```powershell
 python scripts/azure/probe_acs_email_sender.py code.zemoreno@gmail.com
 ```
 
-Debe imprimir `OK`. Luego repite **Marcar como Terminado** en la UI.
+Should print `OK`. Then retry **Mark as Terminated** in the UI.
 
 ---
 
-## Desde tu PC con Azure CLI (recomendado)
+## From your PC with Azure CLI (recommended)
 
-Guía completa: [link-domain-local-cli.md](./link-domain-local-cli.md)
+Full guide: [link-domain-local-cli.md](./link-domain-local-cli.md)
 
-Resumen:
+Summary:
 
 ```powershell
 az login --tenant "01ea369a-621c-4b70-a22c-b9c52c2076d4" --scope "https://management.core.windows.net//.default"
@@ -80,10 +80,10 @@ python scripts/azure/probe_acs_email_sender.py code.zemoreno@gmail.com
 
 ---
 
-## Qué pasó cuando intentamos automatizar desde aquí
+## What happened when we tried to automate from here
 
-- El remitente en `.env` era un **placeholder** (`.local`).
-- Azure exige dominio **conectado** + MailFrom **real**.
-- No se pudo entrar al portal desde el entorno del agente; la corrección es **en Azure + `.env`**, como arriba.
+- The sender in `.env` was a **placeholder** (`.local`).
+- Azure requires a **connected** domain + **real** MailFrom.
+- Portal access was not available from the agent environment; the fix is **in Azure + `.env`**, as above.
 
-Referencia Microsoft: [Connect a verified email domain](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/connect-email-communication-resource).
+Microsoft reference: [Connect a verified email domain](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/email/connect-email-communication-resource).

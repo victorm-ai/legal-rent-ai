@@ -1,58 +1,58 @@
-# Carga de contratos — RF-03, RF-04, RF-05, RF-08, RF-53, RF-54
+# Contract upload — RF-03, RF-04, RF-05, RF-08, RF-53, RF-54
 
-Documentación del módulo de carga y almacenamiento de documentos contractuales.
+Documentation for the contract document upload and storage module.
 
-## Requerimientos cubiertos
+## Requirements covered
 
-| ID | Prioridad | Descripción | Estado |
+| ID | Priority | Description | Status |
 |----|-----------|-------------|--------|
-| RF-03 | P0 | Cargar contratos en formato PDF y DOCX | ✅ Implementado |
-| RF-04 | P0 | Rechazar archivos superiores a 25 MB | ✅ Implementado |
-| RF-05 | P0 | Asociar múltiples documentos al mismo contrato | ✅ Implementado |
-| RF-08 | P0 | Identificar automáticamente el tipo de documento | ✅ Implementado |
-| RF-53 | P0 | No eliminación física desde la UI del MVP | ✅ Implementado |
-| RF-54 | P1 | Política básica de retención de documentos | ✅ Implementado |
+| RF-03 | P0 | Upload contracts in PDF and DOCX format | ✅ Implemented |
+| RF-04 | P0 | Reject files larger than 25 MB | ✅ Implemented |
+| RF-05 | P0 | Associate multiple documents with the same contract | ✅ Implemented |
+| RF-08 | P0 | Automatically identify document type | ✅ Implemented |
+| RF-53 | P0 | No physical deletion from MVP UI | ✅ Implemented |
+| RF-54 | P1 | Basic document retention policy | ✅ Implemented |
 
-## Resumen
+## Summary
 
-| Atributo | Valor |
+| Attribute | Value |
 |----------|-------|
-| Formatos permitidos | PDF (`.pdf`), Word (`.docx`) |
-| Tamaño máximo | 25 MB por archivo |
-| Persistencia | SQL Server — columna `app.contract_documents.file_content` (`VARBINARY(MAX)`) |
-| Tipos de documento | `main_contract`, `annex`, `other` (RF-08); `lawyer_revision` (subida del abogado) |
-| Perspectiva de análisis | `landlord`, `tenant`, `neutral` (al crear contrato) |
+| Allowed formats | PDF (`.pdf`), Word (`.docx`) |
+| Maximum size | 25 MB per file |
+| Persistence | SQL Server — column `app.contract_documents.file_content` (`VARBINARY(MAX)`) |
+| Document types | `main_contract`, `annex`, `other` (RF-08); `lawyer_revision` (lawyer upload) |
+| Analysis perspective | `landlord`, `tenant`, `neutral` (when creating contract) |
 
-> **Decisión de diseño:** en el MVP los archivos se almacenan como binario en la base de datos, no en Blob Storage ni filesystem. Los reportes exportados (RF-46+) podrán usar almacenamiento externo más adelante.
+> **Design decision:** in the MVP files are stored as binary in the database, not in Blob Storage or the filesystem. Exported reports (RF-46+) may use external storage later.
 
-## Estructura del módulo
+## Module structure
 
 ```
 document/
-├── validation.py          # Validación de extensión, tamaño, MIME y magic bytes
-├── text_extractor.py      # Extracción de texto parcial (PDF/DOCX) para clasificación
-└── classifier.py          # Clasificación automática main_contract / annex / other (RF-08)
+├── validation.py          # Extension, size, MIME and magic byte validation
+├── text_extractor.py      # Partial text extraction (PDF/DOCX) for classification
+└── classifier.py          # Automatic main_contract / annex / other classification (RF-08)
 
 data/
 ├── contract_dto.py        # DTOs ContractDTO, ContractDocumentDTO
-├── database.py            # Conexión pyodbc
+├── database.py            # pyodbc connection
 └── repositories/
     ├── contract_repository.py
     └── contract_document_repository.py
 
 services/
-└── contract_service.py    # Lógica de negocio y autorización
+└── contract_service.py    # Business logic and authorization
 
 api/
-├── routes/contracts.py    # Endpoints REST
-└── schemas/contracts.py   # Modelos Pydantic de respuesta
+├── routes/contracts.py    # REST endpoints
+└── schemas/contracts.py   # Pydantic response models
 ```
 
-## Flujo de carga
+## Upload flow
 
 ```mermaid
 sequenceDiagram
-    actor User as Usuario
+    actor User as User
     participant API as POST /contracts
     participant Svc as ContractService
     participant Val as document.validation
@@ -61,9 +61,9 @@ sequenceDiagram
     participant DB as SQL Server
 
     User->>API: multipart file + perspective
-    API->>API: Leer bytes (límite 25 MB)
+    API->>API: Read bytes (25 MB limit)
     API->>Svc: validate_upload
-    Svc->>Val: extensión, MIME, magic bytes
+    Svc->>Val: extension, MIME, magic bytes
     Val-->>Svc: ValidatedDocument
     Svc->>Svc: classify_document (RF-08)
     Svc->>CR: create contract
@@ -74,35 +74,35 @@ sequenceDiagram
     API-->>User: 201 Created
 ```
 
-## API REST
+## REST API
 
-Detalle completo en [api.md](./api.md#contratos--contracts).
+Full detail in [api.md](./api.md#contracts--contracts).
 
-| Método | Ruta | Descripción |
+| Method | Route | Description |
 |--------|------|-------------|
-| `POST` | `/contracts` | Crear contrato y subir el primer documento |
-| `GET` | `/contracts` | Listar contratos |
-| `GET` | `/contracts/{id}` | Detalle con metadatos de documentos |
-| `DELETE` | `/contracts/{id}` | Soft delete del contrato y sus documentos (RF-53) |
-| `POST` | `/contracts/{id}/documents` | Adjuntar documento adicional (RF-05) |
-| `GET` | `/contracts/{id}/documents` | Listar documentos del contrato |
-| `GET` | `/contracts/{id}/documents/{doc_id}/download` | Descargar binario |
+| `POST` | `/contracts` | Create contract and upload first document |
+| `GET` | `/contracts` | List contracts |
+| `GET` | `/contracts/{id}` | Detail with document metadata |
+| `DELETE` | `/contracts/{id}` | Soft delete contract and its documents (RF-53) |
+| `POST` | `/contracts/{id}/documents` | Attach additional document (RF-05) |
+| `GET` | `/contracts/{id}/documents` | List contract documents |
+| `GET` | `/contracts/{id}/documents/{doc_id}/download` | Download binary |
 
-Todos los endpoints requieren **JWT Bearer token**.
+All endpoints require **JWT Bearer token**.
 
-### Ejemplo — Crear contrato con documento
+### Example — Create contract with document
 
 ```http
 POST /contracts HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 Content-Type: multipart/form-data
 
-file: (binary PDF o DOCX)
+file: (binary PDF or DOCX)
 perspective: tenant
 title: Commercial Lease Agreement
 ```
 
-El campo `document_type` **no se envía en la petición**; el backend lo infiere y lo devuelve en la respuesta (RF-08).
+The `document_type` field **is not sent in the request**; the backend infers it and returns it in the response (RF-08).
 
 **Response 201:**
 
@@ -130,7 +130,7 @@ El campo `document_type` **no se envía en la petición**; el backend lo infiere
 }
 ```
 
-### Ejemplo — Adjuntar anexo (RF-05)
+### Example — Attach annex (RF-05)
 
 ```http
 POST /contracts/{contract_id}/documents HTTP/1.1
@@ -140,102 +140,102 @@ Content-Type: multipart/form-data
 file: (binary)
 ```
 
-El tipo (`main_contract`, `annex`, `other`) se detecta automáticamente al subir el archivo.
+The type (`main_contract`, `annex`, `other`) is detected automatically on upload.
 
-## Validaciones (RF-03, RF-04)
+## Validations (RF-03, RF-04)
 
-| Validación | Error HTTP | Mensaje |
+| Validation | HTTP error | Message |
 |------------|------------|---------|
-| Extensión no permitida | 400 | `Only PDF and DOCX files are allowed` |
-| Archivo vacío | 400 | `Uploaded file is empty` |
-| Tamaño > 25 MB | 413 | `File exceeds the maximum allowed size of 25 MB` |
-| Contenido no coincide con formato | 400 | `File content does not match the declared format` |
-| Perspectiva inválida | 400 | `Perspective must be landlord, tenant, or neutral` |
+| Disallowed extension | 400 | `Only PDF and DOCX files are allowed` |
+| Empty file | 400 | `Uploaded file is empty` |
+| Size > 25 MB | 413 | `File exceeds the maximum allowed size of 25 MB` |
+| Content does not match format | 400 | `File content does not match the declared format` |
+| Invalid perspective | 400 | `Perspective must be landlord, tenant, or neutral` |
 
-Comprobaciones aplicadas:
+Checks applied:
 
-1. Extensión `.pdf` o `.docx`
-2. Tamaño en bytes (stream con límite en API y validación en servicio)
-3. MIME type (`application/pdf` o DOCX OpenXML)
-4. Magic bytes: `%PDF` para PDF; `PK\x03\x04` para DOCX (ZIP)
+1. Extension `.pdf` or `.docx`
+2. Size in bytes (stream limit in API and validation in service)
+3. MIME type (`application/pdf` or DOCX OpenXML)
+4. Magic bytes: `%PDF` for PDF; `PK\x03\x04` for DOCX (ZIP)
 
-## Clasificación automática (RF-08)
+## Automatic classification (RF-08)
 
-Al crear un contrato o adjuntar un documento, `ContractService` invoca `document.classifier.classify_document` con:
+When creating a contract or attaching a document, `ContractService` invokes `document.classifier.classify_document` with:
 
-| Señal | Ejemplos |
+| Signal | Examples |
 |-------|----------|
-| Nombre de archivo | `Anexo_*`, `Contrato_*`, `Identificacion_*` |
-| Contenido (vista previa) | «contrato de arrendamiento», «anexo al contrato» |
-| Contexto | Primer documento → sesgo a `main_contract`; adicionales → sesgo a `annex` / `other` |
+| File name | `Anexo_*`, `Contrato_*`, `Identificacion_*` |
+| Content (preview) | «contrato de arrendamiento», «anexo al contrato» |
+| Context | First document → bias to `main_contract`; additional → bias to `annex` / `other` |
 
-Valores posibles en `document_type`:
+Possible values in `document_type`:
 
-| Valor | Descripción |
+| Value | Description |
 |-------|-------------|
-| `main_contract` | Contrato principal de arrendamiento |
-| `annex` | Anexo, addendum o apéndice |
-| `other` | Identificación, recibos, pólizas u otros relacionados |
+| `main_contract` | Main lease contract |
+| `annex` | Annex, addendum, or appendix |
+| `other` | ID, receipts, policies, or other related documents |
 
-El frontend muestra la etiqueta detectada tras la carga y en el visor de documentos.
+The frontend shows the detected label after upload and in the document viewer.
 
 ## Soft delete (RF-53)
 
-Desde el dashboard, el **cliente** propietario (o según reglas del servicio para el abogado) puede eliminar un contrato. La operación:
+From the dashboard, the owning **client** (or per service rules for the lawyer) can delete a contract. The operation:
 
-1. Marca `app.contracts.is_deleted = 1` y registra `deleted_at`.
-2. Marca `app.contract_documents.is_deleted = 1` para todos los documentos del contrato.
-3. **No** borra filas ni binarios de la base de datos.
+1. Sets `app.contracts.is_deleted = 1` and records `deleted_at`.
+2. Sets `app.contract_documents.is_deleted = 1` for all contract documents.
+3. Does **not** delete rows or binary data from the database.
 
-El diálogo de confirmación aclara que el contrato se archiva, no se destruye. Tras el soft delete deja de aparecer en listados habituales del cliente; metadatos incluyen `purge_eligible_at` según la política.
+The confirmation dialog clarifies that the contract is archived, not destroyed. After soft delete it no longer appears in the client’s usual listings; metadata includes `purge_eligible_at` per policy.
 
-## Retención de documentos (RF-54)
+## Document retention (RF-54)
 
-Política básica configurable:
+Configurable basic policy:
 
-| Regla | Valor por defecto |
+| Rule | Default value |
 |-------|-------------------|
-| Contratos activos | Se conservan mientras estén en uso |
-| Contratos archivados (soft delete) | **365 días** antes de ser elegibles para purga permanente |
+| Active contracts | Retained while in use |
+| Archived contracts (soft delete) | **365 days** before eligible for permanent purge |
 
-Variable de entorno:
+Environment variable:
 
 ```bash
 SOFT_DELETE_RETENTION_DAYS=365
 ```
 
-**Endpoint HTTP implementado:**
+**Implemented HTTP endpoint:**
 
-| Método | Ruta | Descripción |
+| Method | Route | Description |
 |--------|------|-------------|
-| `GET` | `/contracts/retention-policy` | Política vigente (cualquier usuario autenticado) |
+| `GET` | `/contracts/retention-policy` | Current policy (any authenticated user) |
 
-La **purga física** está en `backend/services/retention_service.py` (`purge_expired()`), invocable desde scripts o tareas programadas; **no** hay aún `GET/POST /contracts/retention/*` en la API.
+**Physical purge** is in `backend/services/retention_service.py` (`purge_expired()`), callable from scripts or scheduled tasks; there is **no** `GET/POST /contracts/retention/*` on the API yet.
 
-La purga **no** elimina contratos archivados con dependencias bloqueantes (análisis/comparaciones), según reglas del repositorio.
+Purge does **not** remove archived contracts with blocking dependencies (analyses/comparisons), per repository rules.
 
-El frontend muestra la política en el diálogo de eliminación.
+The frontend shows the policy in the delete dialog.
 
-## Autorización
+## Authorization
 
-| Acción | client | lawyer |
+| Action | client | lawyer |
 |--------|--------|--------|
-| Crear contrato / adjuntar documentos | ✅ | ❌ (excepto `POST .../lawyer-revision`) |
-| Ver / listar | ✅ (propios) | ✅ (visibilidad ampliada) |
-| Descargar | ✅ (propios) | ✅ |
-| Eliminar (soft delete) | ✅ (propios) | según reglas del servicio |
-| Subir revisión editada | ❌ | ✅ |
+| Create contract / attach documents | ✅ | ❌ (except `POST .../lawyer-revision`) |
+| View / list | ✅ (own) | ✅ (expanded visibility) |
+| Download | ✅ (own) | ✅ |
+| Delete (soft delete) | ✅ (own) | per service rules |
+| Upload edited revision | ❌ | ✅ |
 
-## Base de datos
+## Database
 
-Tablas involucradas:
+Tables involved:
 
-| Tabla | Uso |
-|-------|-----|
-| `app.contracts` | Metadatos del contrato (perspectiva, estado, título) |
-| `app.contract_documents` | Nombre, tipo, MIME, tamaño y **contenido binario** |
+| Table | Usage |
+|-------|-------|
+| `app.contracts` | Contract metadata (perspective, status, title) |
+| `app.contract_documents` | Name, type, MIME, size, and **binary content** |
 
-Consulta de verificación en SSMS:
+Verification query in SSMS:
 
 ```sql
 USE LegalRentAI;
@@ -252,32 +252,32 @@ WHERE d.is_deleted = 0
 ORDER BY d.uploaded_at DESC;
 ```
 
-Migración para BDs creadas antes del almacenamiento binario: `docs/database/migrations/01-add-file-content.sql`.
+Migration for DBs created before binary storage: `docs/database/migrations/01-add-file-content.sql`.
 
-## Revisión del abogado y cierre (RF-56, RF-57)
+## Lawyer revision and closure (RF-56, RF-57)
 
-| Capacidad | API / UI |
+| Capability | API / UI |
 |-----------|----------|
-| Subir versión editada | `POST /contracts/{id}/lawyer-revision` (`document_type` / scope `lawyer_revision`) |
-| Comparar original vs editado | `POST/GET /contracts/{id}/revision-comparison*` |
-| Versión firmada (flag) | `POST /contracts/{id}/documents` con `is_signed_version=true` (RF-57) |
-| Cierre administrativo | Abogado: `PATCH /contracts/{id}` → `status=terminated` + `closure_notes` (`ContractClosureDialog`) |
-| Coordinación post-cierre | Agente + correo con enlace a `/schedule-signing?token=`; API pública `/public/signing-schedule` |
+| Upload edited version | `POST /contracts/{id}/lawyer-revision` (`document_type` / scope `lawyer_revision`) |
+| Compare original vs edited | `POST/GET /contracts/{id}/revision-comparison*` |
+| Signed version (flag) | `POST /contracts/{id}/documents` with `is_signed_version=true` (RF-57) |
+| Administrative closure | Lawyer: `PATCH /contracts/{id}` → `status=terminated` + `closure_notes` (`ContractClosureDialog`) |
+| Post-closure coordination | Agent + email with link to `/schedule-signing?token=`; public API `/public/signing-schedule` |
 
-Flujo de estados activo en UI: `draft` → `in_review` → `approved` → `terminated`. Solo `terminated` bloquea ediciones (`LOCKED_STATUSES`).
+Active UI status flow: `draft` → `in_review` → `approved` → `terminated`. Only `terminated` locks edits (`LOCKED_STATUSES`).
 
-## Configuración
+## Configuration
 
-Variable opcional en `.env`:
+Optional variable in `.env`:
 
 ```bash
-# Tamaño máximo de upload (default: 26214400 = 25 MB)
+# Maximum upload size (default: 26214400 = 25 MB)
 MAX_UPLOAD_SIZE_BYTES=26214400
 ```
 
-Requiere la misma conexión SQL Server que autenticación (`DB_SERVER`, `DB_NAME`, etc.). Ver [authentication.md](./authentication.md#configuración).
+Requires the same SQL Server connection as authentication (`DB_SERVER`, `DB_NAME`, etc.). See [authentication.md](./authentication.md#configuration).
 
-## Pruebas
+## Tests
 
 ```bash
 pytest tests/integration/test_contracts.py
@@ -287,10 +287,10 @@ pytest tests/unit/test_text_extraction.py
 pytest tests/integration/test_phase1.py
 ```
 
-Cubre validación PDF, límite 25 MB, rechazo de extensiones, flujo completo (crear contrato + anexo + descarga), clasificación automática, extracción de texto persistida, OCR, log de descargas y transiciones de estado.
+Covers PDF validation, 25 MB limit, extension rejection, full flow (create contract + annex + download), automatic classification, persisted text extraction, OCR, download logs, and status transitions.
 
-## Referencias
+## References
 
-- [api.md](./api.md) — especificación REST
-- [database/schema-design.md](./database/schema-design.md) — modelo `contract_documents`
-- [requirements.md](./requirements.md) — RF-03 a RF-08
+- [api.md](./api.md) — REST specification
+- [database/schema-design.md](./database/schema-design.md) — `contract_documents` model
+- [requirements.md](./requirements.md) — RF-03 through RF-08

@@ -23,8 +23,8 @@ class EmptyInput(BaseModel):
 class SendEmailInput(BaseModel):
     narrative_summary: str = Field(
         description=(
-            "Resumen narrativo en español para el cliente. "
-            "No incluyas filas de la tabla; solo contexto y próximos pasos."
+            "Narrative summary in English for the client. "
+            "Do not include table rows; only context and next steps."
         )
     )
 
@@ -34,8 +34,8 @@ def _load_comparison_payload(contract_id: str, settings: Settings) -> dict[str, 
     comparison = service._comparisons.get_latest_self_comparison(contract_id)
     if comparison is None:
         raise ValueError(
-            "No hay comparación original vs editada guardada. "
-            "El cliente debe generarla antes del cierre."
+            "No original-vs-edited comparison is saved. "
+            "The client must generate it before closure."
         )
     changes = service._comparisons.list_changes(comparison.id)
     rows = service._revision_comparison_rows(contract_id)
@@ -98,7 +98,7 @@ def build_signing_coordination_tools(
             schedule_url=ctx.schedule_url,
             closure_notes=ctx.closure_notes,
         )
-        subject = f"Legal Rent AI — Coordinación de firma: {ctx.contract_title or 'Contrato'}"
+        subject = f"Legal Rent AI — Signing coordination: {ctx.contract_title or 'Contract'}"
         AzureCommunicationEmailSender(settings).send_html(
             to_email=ctx.client_email,
             subject=subject,
@@ -112,19 +112,19 @@ def build_signing_coordination_tools(
         StructuredTool.from_function(
             func=get_stored_revision_comparison,
             name="get_stored_revision_comparison",
-            description="Obtiene la comparación original vs editada persistida en SQL Server.",
+            description="Load the persisted original-vs-edited comparison from SQL Server.",
             args_schema=EmptyInput,
         ),
         StructuredTool.from_function(
             func=list_lawyer_availability,
             name="list_lawyer_availability",
-            description="Lista horarios simulados del abogado para coordinar la firma.",
+            description="List simulated lawyer availability slots for signing coordination.",
             args_schema=EmptyInput,
         ),
         StructuredTool.from_function(
             func=send_signing_coordination_email,
             name="send_signing_coordination_email",
-            description="Envía el correo HTML al cliente con tabla comparativa y enlace de agenda.",
+            description="Send HTML email to the client with comparison table and scheduling link.",
             args_schema=SendEmailInput,
         ),
     ]

@@ -1,7 +1,7 @@
 import { DOCUMENT_TYPE_LABELS } from '../config';
 import type { ContractStatus } from '../types/contracts';
 
-export const FINAL_APPROVED_LAWYER_REVISION_LABEL = 'Versión final y aprobada';
+export const FINAL_APPROVED_LAWYER_REVISION_LABEL = 'Final approved version';
 
 export function documentTypeDisplayLabel(
   documentType: string,

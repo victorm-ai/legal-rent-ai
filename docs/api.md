@@ -1,58 +1,58 @@
-# API REST — Legal Rent AI
+# REST API — Legal Rent AI
 
-Especificación de la API del MVP. Texto en español; **rutas, campos JSON y mensajes de error en inglés** (convención del código).
+MVP API specification. Prose in English; **routes, JSON fields, and error messages remain in English** (code convention).
 
-**Código:** `backend/api/`. **Referencia viva:** Swagger en `http://localhost:8000/docs`.
+**Code:** `backend/api/`. **Live reference:** Swagger at `http://localhost:8000/docs`.
 
-## Índice
+## Table of contents
 
-1. [Información general](#información-general)
-2. [Autenticación y roles](#autenticación-y-roles)
-3. [Convenciones](#convenciones)
-4. [Resumen de endpoints implementados](#resumen-de-endpoints-implementados)
-5. [Detalle por módulo](#detalle-por-módulo)
-6. [Endpoints planificados](#endpoints-planificados)
-7. [Modelos y enums](#modelos-y-enums)
-8. [Matriz de roles](#matriz-de-roles)
-9. [Códigos de error](#códigos-de-error)
-10. [Referencia cruzada](#referencia-cruzada)
+1. [General information](#general-information)
+2. [Authentication and roles](#authentication-and-roles)
+3. [Conventions](#conventions)
+4. [Summary of implemented endpoints](#summary-of-implemented-endpoints)
+5. [Detail by module](#detail-by-module)
+6. [Planned endpoints](#planned-endpoints)
+7. [Models and enums](#models-and-enums)
+8. [Role matrix](#role-matrix)
+9. [Error codes](#error-codes)
+10. [Cross-reference](#cross-reference)
 
 ---
 
-## Información general
+## General information
 
-| Atributo | Valor |
+| Attribute | Value |
 |----------|-------|
 | Base URL (dev) | `http://localhost:8000` |
-| Formato | JSON (`Content-Type: application/json`) |
+| Format | JSON (`Content-Type: application/json`) |
 | Uploads | `multipart/form-data` |
-| Autenticación | JWT Bearer (excepto `/health`, `/auth/login`, `/auth/register`, `/public/signing-schedule*` con token en query) |
+| Authentication | JWT Bearer (except `/health`, `/auth/login`, `/auth/register`, `/public/signing-schedule*` with token in query) |
 | Framework | FastAPI 0.104+ |
-| Versión API | `0.1.0` |
-| Arranque | `python run_backend.py` (raíz) o `uvicorn api.app:app` desde `backend/` |
+| API version | `0.1.0` |
+| Startup | `python run_backend.py` (repo root) or `uvicorn api.app:app` from `backend/` |
 
-### Cabeceras
+### Headers
 
-| Cabecera | Obligatoria | Descripción |
+| Header | Required | Description |
 |----------|-------------|-------------|
-| `Authorization` | Rutas protegidas | `Bearer <access_token>` |
-| `Content-Type` | POST/PATCH con cuerpo | `application/json` o `multipart/form-data` |
+| `Authorization` | Protected routes | `Bearer <access_token>` |
+| `Content-Type` | POST/PATCH with body | `application/json` or `multipart/form-data` |
 
 ---
 
-## Autenticación y roles
+## Authentication and roles
 
-Flujo JWT. Detalle del módulo: [authentication.md](./authentication.md).
+JWT flow. Module detail: [authentication.md](./authentication.md).
 
 1. `POST /auth/login` → `access_token`
 2. Requests: `Authorization: Bearer <token>`
-3. `POST /auth/logout` → cierre en cliente
+3. `POST /auth/logout` → client-side sign-out
 
-**Roles en token y BD:** `lawyer`, `client` (no hay rol `administrator` en el MVP actual).
+**Roles in token and DB:** `lawyer`, `client` (no `administrator` role in the current MVP).
 
-Usuarios demo (`seed.sql` / README raíz):
+Demo users (`seed.sql` / root README):
 
-| Email | Contraseña | Rol |
+| Email | Password | Role |
 |-------|------------|-----|
 | `abogado@contractes.com` | `abogado123` | `lawyer` |
 | `code.zemoreno@gmail.com` | `cliente123` | `client` |
@@ -72,171 +72,171 @@ Usuarios demo (`seed.sql` / README raíz):
 
 ### `POST /auth/register`
 
-Registro con rol `client`. Mismo formato de respuesta que login.
+Registration with role `client`. Same response shape as login.
 
 ### `POST /auth/logout`
 
-Requiere Bearer. Response 200: `{ "message": "Signed out successfully" }`.
+Requires Bearer. Response 200: `{ "message": "Signed out successfully" }`.
 
 ---
 
-## Convenciones
+## Conventions
 
-### Identificadores
+### Identifiers
 
-- UUID (`string`) en producción (`UNIQUEIDENTIFIER` en SQL Server).
+- UUID (`string`) in production (`UNIQUEIDENTIFIER` in SQL Server).
 
-### Fechas
+### Dates
 
-- ISO 8601 UTC, p. ej. `"2026-09-16T22:30:00.000Z"`.
+- ISO 8601 UTC, e.g. `"2026-09-16T22:30:00.000Z"`.
 
 ### Soft delete (RF-53)
 
-`DELETE /contracts/{id}` marca `is_deleted`; no borra filas. Listados excluyen eliminados según rol y ownership.
+`DELETE /contracts/{id}` sets `is_deleted`; does not remove rows. Listings exclude deleted records per role and ownership.
 
 ### Upload
 
-- PDF y DOCX, máximo **25 MB** (HTTP 413 si excede).
-- Campo archivo: `file`.
+- PDF and DOCX, maximum **25 MB** (HTTP 413 if exceeded).
+- File field: `file`.
 
-### Descarga con token (RNF-21)
+### Download with token (RNF-21)
 
-`POST .../download-token` emite URL con query `token` de corta vida; `GET .../download?token=` acepta JWT **o** token.
+`POST .../download-token` issues a URL with a short-lived query `token`; `GET .../download?token=` accepts JWT **or** token.
 
 ---
 
-## Resumen de endpoints implementados
+## Summary of implemented endpoints
 
-| Módulo | Métodos principales |
+| Module | Main methods |
 |--------|---------------------|
 | Health | `GET /health` |
 | Auth | `POST /auth/login`, `/register`, `/logout` |
-| Contratos | `GET/POST /contracts`, `GET/PATCH/DELETE /contracts/{id}` |
-| Documentos | `POST /contracts/{id}/documents`, `GET .../documents`, `GET .../download`, `GET .../text`, `POST .../download-token` |
-| Partes | `GET /contracts/{id}/parties` |
-| Análisis (por contrato) | `POST/GET /contracts/{id}/analyses` |
-| Análisis (detalle) | `GET/PATCH /analyses/{id}`, `GET /analyses/{id}/status` |
-| Revisión abogado | `POST /analyses/{id}/findings/{finding_id}/review`, `POST /analyses/{id}/approve` |
-| Revisión editada | `POST /contracts/{id}/lawyer-revision`, `POST/GET .../revision-comparison` |
-| Mensajes expediente | `GET/POST /contracts/{id}/review-messages`, `POST .../mark-read` |
-| Mensajes por análisis | `GET/POST /analyses/{id}/review-messages` |
-| Retención | `GET /contracts/retention-policy` |
+| Contracts | `GET/POST /contracts`, `GET/PATCH/DELETE /contracts/{id}` |
+| Documents | `POST /contracts/{id}/documents`, `GET .../documents`, `GET .../download`, `GET .../text`, `POST .../download-token` |
+| Parties | `GET /contracts/{id}/parties` |
+| Analysis (per contract) | `POST/GET /contracts/{id}/analyses` |
+| Analysis (detail) | `GET/PATCH /analyses/{id}`, `GET /analyses/{id}/status` |
+| Lawyer review | `POST /analyses/{id}/findings/{finding_id}/review`, `POST /analyses/{id}/approve` |
+| Edited revision | `POST /contracts/{id}/lawyer-revision`, `POST/GET .../revision-comparison` |
+| Case messages | `GET/POST /contracts/{id}/review-messages`, `POST .../mark-read` |
+| Messages per analysis | `GET/POST /analyses/{id}/review-messages` |
+| Retention | `GET /contracts/retention-policy` |
 | Chat | `POST/GET /contracts/{id}/chat/sessions`, `POST/GET /chat/sessions/{id}/messages`, **`POST .../messages/stream` (SSE)**, `GET .../suggestions` |
-| Reportes | `POST/GET /analyses/{id}/reports`, `GET /reports/{id}/download` |
-| Notificaciones | `POST/GET /analyses/{id}/notifications` |
-| Comparaciones | `POST /comparisons`, `GET /comparisons/{id}` |
+| Reports | `POST/GET /analyses/{id}/reports`, `GET /reports/{id}/download` |
+| Notifications | `POST/GET /analyses/{id}/notifications` |
+| Comparisons | `POST /comparisons`, `GET /comparisons/{id}` |
 | Admin / feedback | `GET /admin/feedback/export` (lawyer) |
-| Agenda de firma (pública) | `GET/POST /public/signing-schedule` (JWT en query `token`, sin login SPA) |
+| Public signing schedule | `GET/POST /public/signing-schedule` (JWT in query `token`, no SPA login) |
 
 ---
 
-## Detalle por módulo
+## Detail by module
 
 ### Health
 
 #### `GET /health`
 
-Sin autenticación. Response: `status`, `service`, `version`.
+No authentication. Response: `status`, `service`, `version`.
 
 ---
 
-### Contratos — `/contracts`
+### Contracts — `/contracts`
 
-| Método | Ruta | Notas |
+| Method | Route | Notes |
 |--------|------|--------|
-| `GET` | `/contracts` | Lista; `lawyer` ve contratos de clientes asignados / visibilidad ampliada según servicio |
-| `POST` | `/contracts` | Multipart: `file`, `perspective` (`tenant` en MVP UI), `title` opcional |
-| `GET` | `/contracts/{id}` | Detalle + documentos |
+| `GET` | `/contracts` | List; `lawyer` sees assigned clients’ contracts / expanded visibility per service |
+| `POST` | `/contracts` | Multipart: `file`, `perspective` (`tenant` in MVP UI), optional `title` |
+| `GET` | `/contracts/{id}` | Detail + documents |
 | `PATCH` | `/contracts/{id}` | `status`, `title`, `closure_notes` (RF-56) |
 | `DELETE` | `/contracts/{id}` | Soft delete (RF-53) |
-| `GET` | `/contracts/retention-policy` | Días de retención post-eliminación (RF-54) |
+| `GET` | `/contracts/retention-policy` | Days of retention after deletion (RF-54) |
 
-**`POST /contracts/{id}/documents`:** adjunto adicional; form `file`, opcional `is_signed_version` (RF-57 parcial).
+**`POST /contracts/{id}/documents`:** additional attachment; form `file`, optional `is_signed_version` (RF-57 partial).
 
-**`POST /contracts/{id}/lawyer-revision`:** solo `lawyer`; sube DOCX/PDF editado (`document_type` / scope `lawyer_revision`).
+**`POST /contracts/{id}/lawyer-revision`:** `lawyer` only; uploads edited DOCX/PDF (`document_type` / scope `lawyer_revision`).
 
-**`POST /contracts/{id}/analyses`:** body JSON con `perspective` y `document_scope` (`original` \| `lawyer_revision`). Por defecto pipeline **síncrono** (`ANALYSIS_ASYNC=false`); si `true`, responde 201 con `processing` y el cliente hace polling en `/analyses/{id}/status`.
+**`POST /contracts/{id}/analyses`:** JSON body with `perspective` and `document_scope` (`original` \| `lawyer_revision`). By default the pipeline is **synchronous** (`ANALYSIS_ASYNC=false`); if `true`, responds 201 with `processing` and the client polls `/analyses/{id}/status`.
 
-**Ciclo de vida (RF-56):** `PATCH /contracts/{id}` acepta `status`, `title`, `closure_notes`. Flujo UI habitual:
+**Lifecycle (RF-56):** `PATCH /contracts/{id}` accepts `status`, `title`, `closure_notes`. Typical UI flow:
 
-| Paso | Rol | Transición |
+| Step | Role | Transition |
 |------|-----|------------|
-| Enviar a revisión legal | `client` | `draft` → `in_review` |
-| Aprobar expediente | `client` | `in_review` → `approved` |
-| Cierre administrativo | `lawyer` | `approved` → `terminated` (+ `closure_notes` recomendadas) |
+| Submit for legal review | `client` | `draft` → `in_review` |
+| Approve case | `client` | `in_review` → `approved` |
+| Administrative closure | `lawyer` | `approved` → `terminated` (+ `closure_notes` recommended) |
 
-Al pasar a `terminated`, el backend puede ejecutar **coordinación de firma** (agente LangGraph + correo ACS/SMTP con enlace `{FRONTEND_BASE_URL}/schedule-signing?token=...`). Si el agente falla, el servicio revierte el status del contrato. Tras `terminated`, el contrato queda **bloqueado** (`is_contract_locked`).
+When moving to `terminated`, the backend may run **signing coordination** (LangGraph agent + ACS/SMTP email with link `{FRONTEND_BASE_URL}/schedule-signing?token=...`). If the agent fails, the service reverts the contract status. After `terminated`, the contract is **locked** (`is_contract_locked`).
 
-Estados reservados en modelo (`in_signing`, `signed`, `expired`) existen en BD pero no forman parte del flujo principal de la SPA hoy.
+Reserved model states (`in_signing`, `signed`, `expired`) exist in the DB but are not part of the main SPA flow today.
 
-**Comparación original vs editado:**
+**Original vs edited comparison:**
 
-- `POST /contracts/{id}/revision-comparison` — puede devolver 202 si el análisis de la revisión está en curso.
+- `POST /contracts/{id}/revision-comparison` — may return 202 if revision analysis is in progress.
 - `GET /contracts/{id}/revision-comparison/latest`
 
-Ver [contracts.md](./contracts.md) para ejemplos multipart.
+See [contracts.md](./contracts.md) for multipart examples.
 
 ---
 
-### Análisis — `/analyses`
+### Analysis — `/analyses`
 
-| Método | Ruta | Descripción |
+| Method | Route | Description |
 |--------|------|-------------|
-| `GET` | `/analyses/{id}` | Resultado completo: campos extraídos, cláusulas, hallazgos, citas, metadata LLM |
-| `GET` | `/analyses/{id}/status` | Polling de pipeline |
-| `PATCH` | `/analyses/{id}/status` | Transiciones de workflow (RF-58) |
-| `POST` | `/analyses/{id}/findings/{finding_id}/review` | Solo `lawyer` — `verdict`: `correct`, `incorrect`, `not_relevant` |
-| `POST` | `/analyses/{id}/approve` | Solo `lawyer` — aprobación formal (RF-69) |
+| `GET` | `/analyses/{id}` | Full result: extracted fields, clauses, findings, citations, LLM metadata |
+| `GET` | `/analyses/{id}/status` | Pipeline polling |
+| `PATCH` | `/analyses/{id}/status` | Workflow transitions (RF-58) |
+| `POST` | `/analyses/{id}/findings/{finding_id}/review` | `lawyer` only — `verdict`: `correct`, `incorrect`, `not_relevant` |
+| `POST` | `/analyses/{id}/approve` | `lawyer` only — formal approval (RF-69) |
 
 ---
 
 ### Chat — SSE
 
-| Método | Ruta | Descripción |
+| Method | Route | Description |
 |--------|------|-------------|
-| `POST` | `/contracts/{id}/chat/sessions` | Body: `analysis_id` opcional |
-| `GET` | `/contracts/{id}/chat/sessions` | Lista sesiones |
-| `POST` | `/chat/sessions/{id}/messages` | Respuesta completa en JSON |
-| `POST` | `/chat/sessions/{id}/messages/stream` | **Server-Sent Events** — tokens y eventos (`type`: chunk, done, error) |
-| `GET` | `/chat/sessions/{id}/messages` | Historial |
-| `GET` | `/chat/sessions/{id}/suggestions` | Preguntas sugeridas (RF-44) |
+| `POST` | `/contracts/{id}/chat/sessions` | Body: optional `analysis_id` |
+| `GET` | `/contracts/{id}/chat/sessions` | List sessions |
+| `POST` | `/chat/sessions/{id}/messages` | Full JSON response |
+| `POST` | `/chat/sessions/{id}/messages/stream` | **Server-Sent Events** — tokens and events (`type`: chunk, done, error) |
+| `GET` | `/chat/sessions/{id}/messages` | History |
+| `GET` | `/chat/sessions/{id}/suggestions` | Suggested questions (RF-44) |
 
-El frontend usa el endpoint **stream** para respuesta en tiempo real.
+The frontend uses the **stream** endpoint for real-time responses.
 
 ---
 
-### Reportes
+### Reports
 
-| Método | Ruta | Descripción |
+| Method | Route | Description |
 |--------|------|-------------|
 | `POST` | `/analyses/{id}/reports` | Body: `{ "format": "pdf" \| "json" }` |
-| `GET` | `/analyses/{id}/reports` | Lista metadatos |
-| `GET` | `/reports/{id}/download` | Archivo desde `backend/storage/reports/` |
+| `GET` | `/analyses/{id}/reports` | Metadata list |
+| `GET` | `/reports/{id}/download` | File from `backend/storage/reports/` |
 
-Registra descarga en `download_logs` cuando aplica (RF-55).
+Records download in `download_logs` when applicable (RF-55).
 
 ---
 
-### Notificaciones y mensajes
+### Notifications and messages
 
-| Método | Ruta | Descripción |
+| Method | Route | Description |
 |--------|------|-------------|
-| `POST` | `/analyses/{id}/notifications` | Cliente notifica decisión al abogado (ACS Email, SMTP o `NOTIFICATION_DEV_MODE` log) |
-| `GET` | `/analyses/{id}/notifications` | Historial |
-| `GET/POST` | `/analyses/{id}/review-messages` | Hilo cliente–abogado ligado al análisis |
-| `GET/POST` | `/contracts/{id}/review-messages` | Mensajes a nivel expediente |
-| `POST` | `/contracts/{id}/review-messages/mark-read` | Cursor de lectura |
+| `POST` | `/analyses/{id}/notifications` | Client notifies lawyer of decision (ACS Email, SMTP, or `NOTIFICATION_DEV_MODE` log) |
+| `GET` | `/analyses/{id}/notifications` | History |
+| `GET/POST` | `/analyses/{id}/review-messages` | Client–lawyer thread tied to analysis |
+| `GET/POST` | `/contracts/{id}/review-messages` | Case-level messages |
+| `POST` | `/contracts/{id}/review-messages/mark-read` | Read cursor |
 
 ---
 
-### Comparaciones — `/comparisons`
+### Comparisons — `/comparisons`
 
-| Método | Ruta | Body |
+| Method | Route | Body |
 |--------|------|------|
 | `POST` | `/comparisons` | `{ "base_contract_id", "compare_contract_id" }` |
-| `GET` | `/comparisons/{id}` | Detalle + cambios |
+| `GET` | `/comparisons/{id}` | Detail + changes |
 
-> Nota: la comparación **original vs revisión editada** del mismo contrato usa `/contracts/{id}/revision-comparison`, no este prefijo.
+> Note: **original vs edited revision** comparison for the same contract uses `/contracts/{id}/revision-comparison`, not this prefix.
 
 ---
 
@@ -244,42 +244,42 @@ Registra descarga en `download_logs` cuando aplica (RF-55).
 
 #### `GET /admin/feedback/export`
 
-Rol `lawyer`. Export JSON de `finding_reviews` y `analysis_approvals` (RF-70). No existe rol `admin` en el MVP; el prefijo `/admin` es convención histórica.
+Role `lawyer`. JSON export of `finding_reviews` and `analysis_approvals` (RF-70). No `admin` role in the MVP; the `/admin` prefix is a historical convention.
 
 ---
 
-### Agenda de firma pública — `/public/signing-schedule`
+### Public signing schedule — `/public/signing-schedule`
 
-Sin Bearer de sesión. Autenticación mediante **JWT de un solo uso de agenda** en query (`token`), emitido por `SigningCoordinationService` / `SigningScheduleTokenService`.
+No session Bearer. Authentication via **one-time schedule JWT** in query (`token`), issued by `SigningCoordinationService` / `SigningScheduleTokenService`.
 
-| Método | Ruta | Descripción |
+| Method | Route | Description |
 |--------|------|-------------|
-| `GET` | `/public/signing-schedule?token=` | Contexto del contrato, comparación resumida y slots disponibles (simulados, Lun–Vie `America/Mexico_City`) |
-| `POST` | `/public/signing-schedule/confirm?token=` | Body: slot elegido; confirmación **simulada** (sin persistencia de cita en BD) |
+| `GET` | `/public/signing-schedule?token=` | Contract context, summary comparison, and available slots (simulated, Mon–Fri `America/Mexico_City`) |
+| `POST` | `/public/signing-schedule/confirm?token=` | Body: chosen slot; **simulated** confirmation (no appointment persistence in DB) |
 
-Requisitos de negocio: contrato en status `terminated` y token válido. La SPA expone la ruta **`/schedule-signing`** (`ScheduleSigningPage.tsx`) consumiendo estos endpoints.
+Business rules: contract in `terminated` status and valid token. The SPA exposes route **`/schedule-signing`** (`ScheduleSigningPage.tsx`) consuming these endpoints.
 
-Variables relacionadas: `FRONTEND_BASE_URL`, `SIGNING_SCHEDULE_*`, `AZURE_COMMUNICATION_*`, `SMTP_*`, `NOTIFICATION_DEV_MODE` (ver `.env.example`).
+Related variables: `FRONTEND_BASE_URL`, `SIGNING_SCHEDULE_*`, `AZURE_COMMUNICATION_*`, `SMTP_*`, `NOTIFICATION_DEV_MODE` (see `.env.example`).
 
 ---
 
-## Endpoints planificados
+## Planned endpoints
 
-| Área | Descripción |
+| Area | Description |
 |------|-------------|
-| Retención HTTP | `GET /contracts/retention/status`, `POST /contracts/retention/purge` — la purga existe en `RetentionService.purge_expired()` pero **no** está expuesta en REST |
-| Usuarios `/users/*` | CRUD administrativo (RF-01/02 ampliado) |
-| Paginación | Listados con `page` / `page_size` |
-| RAG vectorial | Endpoints de ingestión/consulta embeddings |
+| Retention HTTP | `GET /contracts/retention/status`, `POST /contracts/retention/purge` — purge exists in `RetentionService.purge_expired()` but is **not** exposed on REST |
+| Users `/users/*` | Administrative CRUD (extended RF-01/02) |
+| Pagination | Listings with `page` / `page_size` |
+| Vector RAG | Embedding ingest/query endpoints |
 
 ---
 
-## Modelos y enums
+## Models and enums
 
-| Campo | Valores relevantes |
+| Field | Relevant values |
 |-------|-------------------|
 | `role` | `lawyer`, `client` |
-| `perspective` | `landlord`, `tenant`, `neutral` (análisis UI: tenant) |
+| `perspective` | `landlord`, `tenant`, `neutral` (analysis UI: tenant) |
 | `document_scope` | `original`, `lawyer_revision` |
 | `contract.status` | `draft`, `in_review`, `approved`, `in_signing`, `signed`, `expired`, `terminated` |
 | `analysis.status` | `processing`, `ai_generated`, `pending_review`, `reviewed`, `approved`, `failed` |
@@ -288,82 +288,82 @@ Variables relacionadas: `FRONTEND_BASE_URL`, `SIGNING_SCHEDULE_*`, `AZURE_COMMUN
 | `finding_type` | `legal_risk`, `missing_clause`, `contradiction`, `inconsistency`, `recommendation` |
 | `severity` / `general_risk` | `low`, `medium`, `high` |
 
-Campos extraídos (`extracted_data`): español — `arrendador`, `arrendatario`, `renta_mensual`, etc. Ver `backend/data/models.py` y [schema-design.md](./database/schema-design.md).
+Extracted fields (`extracted_data`): Spanish keys — `arrendador`, `arrendatario`, `renta_mensual`, etc. See `backend/data/models.py` and [schema-design.md](./database/schema-design.md).
 
 ---
 
-## Matriz de roles
+## Role matrix
 
-| Recurso | client | lawyer |
+| Resource | client | lawyer |
 |---------|--------|--------|
-| Crear contrato / subir documentos | ✅ | ❌ (salvo `POST .../lawyer-revision`) |
-| Ver contratos propios | ✅ | ✅ (no ve `draft` de clientes) |
-| Transiciones de status RF-56 | ✅ (`draft→in_review`, `in_review→approved`) | ✅ (`approved→terminated`) |
-| Ejecutar análisis | ✅ | ✅ |
+| Create contract / upload documents | ✅ | ❌ (except `POST .../lawyer-revision`) |
+| View own contracts | ✅ | ✅ (does not see client `draft`) |
+| RF-56 status transitions | ✅ (`draft→in_review`, `in_review→approved`) | ✅ (`approved→terminated`) |
+| Run analysis | ✅ | ✅ |
 | Chat | ✅ | ✅ |
-| Reportes / descargas | ✅ | ✅ |
-| Revisar hallazgos / aprobar análisis | ❌ | ✅ |
-| Subir revisión editada | ❌ | ✅ |
+| Reports / downloads | ✅ | ✅ |
+| Review findings / approve analysis | ❌ | ✅ |
+| Upload edited revision | ❌ | ✅ |
 | Export feedback | ❌ | ✅ |
-| Soft delete contrato propio | ✅ | según reglas de servicio |
-| Agenda pública de firma | ✅ (vía enlace con token) | — |
+| Soft delete own contract | ✅ | per service rules |
+| Public signing schedule | ✅ (via token link) | — |
 
 ---
 
-## Códigos de error
+## Error codes
 
-Formato FastAPI: `{ "detail": "..." }` o lista de errores de validación (422).
+FastAPI format: `{ "detail": "..." }` or validation error list (422).
 
-| HTTP | Uso |
+| HTTP | Usage |
 |------|-----|
-| 400 | Validación de negocio |
-| 401 | Token ausente o inválido |
-| 403 | Rol o ownership |
-| 404 | Recurso no encontrado |
-| 409 | Conflicto (p. ej. análisis duplicado, transición de estado) |
-| 413 | Archivo > 25 MB |
-| 422 | Pydantic / reglas de dominio |
+| 400 | Business validation |
+| 401 | Missing or invalid token |
+| 403 | Role or ownership |
+| 404 | Resource not found |
+| 409 | Conflict (e.g. duplicate analysis, state transition) |
+| 413 | File > 25 MB |
+| 422 | Pydantic / domain rules |
 
 ---
 
-## Referencia cruzada
+## Cross-reference
 
-| Documento | Contenido |
+| Document | Content |
 |-----------|-----------|
 | [authentication.md](./authentication.md) | JWT, middleware, SQL |
-| [contracts.md](./contracts.md) | Upload, clasificación RF-08 |
+| [contracts.md](./contracts.md) | Upload, classification RF-08 |
 | [requirements.md](./requirements.md) | RF-* |
-| [database/schema-design.md](./database/schema-design.md) | Tablas SQL Server |
-| [architecture/c4-level2-containers.md](./architecture/c4-level2-containers.md) | Contenedores |
-| Swagger | Solo endpoints montados en `create_router()` |
+| [database/schema-design.md](./database/schema-design.md) | SQL Server tables |
+| [architecture/c4-level2-containers.md](./architecture/c4-level2-containers.md) | Containers |
+| Swagger | Only endpoints mounted in `create_router()` |
 
-### Mapa RF → endpoints (resumen)
+### RF → endpoints map (summary)
 
 | RF | Endpoints |
 |----|-----------|
 | RF-01, RF-02 | `/auth/*` |
 | RF-03–RF-08, RF-53, RF-56 | `/contracts*` |
-| RF-06–RF-07 | `.../text`, extracción en upload |
+| RF-06–RF-07 | `.../text`, extraction on upload |
 | RF-09–RF-37, RF-52, RF-58 | `/contracts/{id}/analyses`, `/analyses/{id}*` |
 | RF-41–RF-45 | `/contracts/{id}/chat/*`, `/chat/sessions/*` |
 | RF-46–RF-49 | `/analyses/{id}/reports`, `/reports/{id}/download` |
 | RF-50, RF-51 | `/analyses/{id}/notifications`, review-messages |
-| RF-54 | `GET /contracts/retention-policy` (+ purga programática) |
-| RF-55 | Descargas documentos/reportes → `download_logs` |
+| RF-54 | `GET /contracts/retention-policy` (+ programmatic purge) |
+| RF-55 | Document/report downloads → `download_logs` |
 | RF-59–RF-62 | `/comparisons` |
-| RF-68–RF-70 | Revisión hallazgos, approve, `/admin/feedback/export` |
-| RF-56 (cierre) | `PATCH /contracts/{id}` → `terminated`; agente + `/public/signing-schedule` |
+| RF-68–RF-70 | Finding review, approve, `/admin/feedback/export` |
+| RF-56 (closure) | `PATCH /contracts/{id}` → `terminated`; agent + `/public/signing-schedule` |
 
 ---
 
-## Historial de versiones
+## Version history
 
-| Versión | Fecha | Cambios |
+| Version | Date | Changes |
 |---------|-------|---------|
-| 0.7.0 | 2026-09 | Coordinación de firma, endpoints públicos, ACS Email, demo client email, scripts reorganizados |
-| 0.6.0 | 2026-09 | Doc alineada a monorepo `backend/`; chat SSE; CAG; roles lawyer/client |
-| 0.5.0 | 2026-09 | Retención RF-54 (política) |
+| 0.7.0 | 2026-09 | Signing coordination, public endpoints, ACS Email, demo client email, reorganized scripts |
+| 0.6.0 | 2026-09 | Doc aligned to `backend/` monorepo; chat SSE; CAG; lawyer/client roles |
+| 0.5.0 | 2026-09 | Retention RF-54 (policy) |
 | 0.4.0 | 2026-09 | Soft delete RF-53 |
-| 0.3.0 | 2026-09 | Clasificación RF-08 |
-| 0.2.0 | 2026-03 | Auth + contratos en SQL Server |
-| 0.1.0 | 2026-03 | Health + auth inicial |
+| 0.3.0 | 2026-09 | Classification RF-08 |
+| 0.2.0 | 2026-03 | Auth + contracts on SQL Server |
+| 0.1.0 | 2026-03 | Health + initial auth |

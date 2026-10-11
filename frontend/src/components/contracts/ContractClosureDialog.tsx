@@ -35,10 +35,10 @@ export default function ContractClosureDialog({
 
   return (
     <Dialog open={open} onClose={saving ? undefined : onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Cerrar expediente</DialogTitle>
+      <DialogTitle>Close case file</DialogTitle>
       <DialogContent>
         <DialogContentText sx={{ mb: 2 }}>
-          Indique las notas finales para el cliente antes de marcar el contrato como Terminado.
+          Enter final notes for the client before marking the contract as Terminated.
         </DialogContentText>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -49,7 +49,7 @@ export default function ContractClosureDialog({
           fullWidth
           multiline
           minRows={4}
-          label="Notas finales"
+          label="Closing notes"
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           disabled={saving}
@@ -57,14 +57,14 @@ export default function ContractClosureDialog({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>
-          Cancelar
+          Cancel
         </Button>
         <Button
           variant="contained"
           onClick={() => onConfirm(notes.trim())}
           disabled={saving || !canSubmit}
         >
-          {saving ? 'Guardando…' : 'Marcar como Terminado'}
+          {saving ? 'Saving…' : 'Mark as Terminated'}
         </Button>
       </DialogActions>
     </Dialog>

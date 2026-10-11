@@ -1,19 +1,19 @@
 # Scripts — Legal Rent AI
 
-Utilidades ejecutadas desde la **raíz del repositorio** (`python scripts/...` o `.bat` en la raíz).
+Utilities run from the **repository root** (`python scripts/...` or root `.bat` files).
 
 ## Layout
 
-| Carpeta | Contenido |
+| Folder | Contents |
 |---------|-----------|
-| [`windows/`](./windows/) | `.bat` para SSMS local (`setup_database`, `apply_migrations`, `start_frontend`) |
-| [`docker/`](./docker/) | Compose local (`docker-up`, `docker-clean`, directorio de datos Docker) |
-| [`azure/`](./azure/) | Despliegue LIDR (`deploy-lidr.ps1`) y prueba ACS Email (`probe_acs_email_sender.py`) |
-| [`db/`](./db/) | Verificación de esquema SQL (`verify_database_schema.py`) |
-| [`maintenance/`](./maintenance/) | Limpieza de datos demo (`purge_all_contracts`, `cleanup_lawyer_test_data`, …) |
-| [`corpus/`](./corpus/) | Regenerar `docs/legal-sources/cag-corpus-v1.md` desde PDFs |
-| [`docs/`](./docs/) | Mantenimiento de documentación (`update_requirements_status.py`) |
+| [`windows/`](./windows/) | `.bat` for local SSMS (`setup_database`, `apply_migrations`, `start_frontend`) |
+| [`docker/`](./docker/) | Local Compose (`docker-up`, `docker-clean`, Docker data directory) |
+| [`azure/`](./azure/) | LIDR deploy (`deploy-lidr.ps1`) and ACS Email probe (`probe_acs_email_sender.py`) |
+| [`db/`](./db/) | SQL schema verification (`verify_database_schema.py`) |
+| [`maintenance/`](./maintenance/) | Demo data cleanup (`purge_all_contracts`, `cleanup_lawyer_test_data`, …) |
+| [`corpus/`](./corpus/) | Regenerate `docs/legal-sources/cag-corpus-v1.md` from PDFs |
+| [`docs/`](./docs/) | Documentation maintenance (`update_requirements_status.py`) |
 
-## Atajos en la raíz
+## Root shortcuts
 
-Los archivos `setup_database.bat`, `apply_migrations.bat` y `start_frontend.bat` delegan en `scripts/windows/`.
+Files `setup_database.bat`, `apply_migrations.bat`, and `start_frontend.bat` delegate to `scripts/windows/`.

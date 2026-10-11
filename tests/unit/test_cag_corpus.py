@@ -10,16 +10,16 @@ def test_corpus_file_exists_and_loads() -> None:
     path = resolve_corpus_path()
     assert path.is_file(), f"Missing corpus: {path}"
     text = get_cag_corpus_text()
-    assert "Corpus CAG v1" in text
-    assert "Artículo 2023" in text
-    assert "Artículo 683" in text
+    assert "CAG Corpus v1" in text
+    assert "Article 2023" in text
+    assert "Article 683" in text
 
 
 def test_analysis_system_prompt_includes_corpus() -> None:
     clear_corpus_cache()
     prompt = build_analysis_system_prompt()
     assert "AUTHORIZED LEGAL CORPUS" in prompt
-    assert "Artículo 2041" in prompt
+    assert "Article 2041" in prompt
     assert CONTRACT_ANALYSIS_PROMPT_ID == "contract-analysis-v3-cag"
 
 

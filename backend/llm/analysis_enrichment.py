@@ -111,7 +111,7 @@ def detect_jurisdiction_issues(
                     "or in a dedicated jurisdiction clause."
                 ),
                 "legal_basis": "Lease disputes require a defined competent court or jurisdiction.",
-                "source_law": "Código Civil — competencia",
+                "source_law": "Civil Code — jurisdiction",
                 "recommendation": "Add an explicit jurisdiction and venue clause.",
                 "evidence_text": None,
                 "clause_index": None,

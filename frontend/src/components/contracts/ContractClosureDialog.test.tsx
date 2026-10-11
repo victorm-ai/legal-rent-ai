@@ -17,14 +17,14 @@ describe('ContractClosureDialog', () => {
       />,
     );
 
-    const submitButton = screen.getByRole('button', { name: 'Marcar como Terminado' });
+    const submitButton = screen.getByRole('button', { name: 'Mark as Terminated' });
     expect(submitButton).toBeDisabled();
 
-    await user.type(screen.getByLabelText('Notas finales'), '   ');
+    await user.type(screen.getByLabelText('Closing notes'), '   ');
     expect(submitButton).toBeDisabled();
 
-    await user.clear(screen.getByLabelText('Notas finales'));
-    await user.type(screen.getByLabelText('Notas finales'), '  Cierre acordado  ');
+    await user.clear(screen.getByLabelText('Closing notes'));
+    await user.type(screen.getByLabelText('Closing notes'), '  Cierre acordado  ');
     expect(submitButton).toBeEnabled();
 
     await user.click(submitButton);

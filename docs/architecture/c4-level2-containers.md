@@ -1,124 +1,124 @@
-# C4 — Nivel 2: Contenedores
+# C4 — Level 2: Containers
 
-Unidades desplegables: SPA, API, base de datos y servicios externos.
+Deployable units: SPA, API, database, and external services.
 
-## Diagrama — Vista objetivo MVP
+## Diagram — MVP target view
 
 ```mermaid
 C4Container
-    title Contenedores - Legal Rent AI MVP (objetivo)
+    title Containers - Legal Rent AI MVP (target)
 
-    Person(user, "Usuario", "Cliente o abogado")
+    Person(user, "User", "Client or lawyer")
 
     Container_Boundary(c1, "Legal Rent AI") {
-        Container(webApp, "Aplicacion web", "React, TypeScript, Vite, MUI", "Dashboard, contratos, analisis, chat")
-        Container(api, "API Backend", "Python, FastAPI", "REST bajo backend/")
-        ContainerDb(database, "Base de datos", "SQL Server LegalRentAI", "Datos relacionales y binarios PDF/DOCX")
-        Container(fileStorage, "Almacen local", "backend/storage", "Reportes PDF y trazas LLM")
-        Container(vectorDb, "Base vectorial", "ChromaDB o Azure AI Search", "RAG futuro")
+        Container(webApp, "Web application", "React, TypeScript, Vite, MUI", "Dashboard, contracts, analysis, chat")
+        Container(api, "API Backend", "Python, FastAPI", "REST under backend/")
+        ContainerDb(database, "Database", "SQL Server LegalRentAI", "Relational data and PDF/DOCX binaries")
+        Container(fileStorage, "Local storage", "backend/storage", "PDF reports and LLM traces")
+        Container(vectorDb, "Vector database", "ChromaDB or Azure AI Search", "Future RAG")
     }
 
-    System_Ext(llm, "Proveedor LLM", "OpenAI, Anthropic, Azure OpenAI via LiteLLM")
-    System_Ext(email, "Correo", "ACS Email, SMTP o modo dev")
-    System_Ext(legalCorpus, "Corpus CAG", "docs/legal-sources/cag-corpus-v1.md")
+    System_Ext(llm, "LLM provider", "OpenAI, Anthropic, Azure OpenAI via LiteLLM")
+    System_Ext(email, "Email", "ACS Email, SMTP or dev mode")
+    System_Ext(legalCorpus, "CAG corpus", "docs/legal-sources/cag-corpus-v1.md")
 
     Rel(user, webApp, "HTTPS", "3000")
     Rel(webApp, api, "JSON JWT", "8000")
     Rel(api, database, "pyodbc", "SQL")
-    Rel(api, fileStorage, "Filesystem", "reports y llm-runs")
-    Rel(api, legalCorpus, "Lee markdown", "REPO_ROOT")
+    Rel(api, fileStorage, "Filesystem", "reports and llm-runs")
+    Rel(api, legalCorpus, "Reads markdown", "REPO_ROOT")
     Rel(api, llm, "Completions", "HTTPS")
-    Rel(api, email, "Notificaciones y coordinacion firma", "HTTPS/SMTP")
-    Rel(api, vectorDb, "Embeddings", "planificado")
+    Rel(api, email, "Notifications and signing coordination", "HTTPS/SMTP")
+    Rel(api, vectorDb, "Embeddings", "planned")
 ```
 
-## Diagrama — Estado actual (septiembre 2026)
+## Diagram — Current state (September 2026)
 
 ```mermaid
 C4Container
-    title Contenedores implementados
+    title Implemented containers
 
-    Person(user, "Usuario", "client o lawyer")
+    Person(user, "User", "client or lawyer")
 
     Container_Boundary(c1, "Monorepo") {
-        Container(webApp, "frontend/", "React 19, Vite, MUI", "Upload, analisis, chat SSE, cierre, agenda firma")
-        Container(api, "backend/", "FastAPI", "Auth, contratos, analisis, chat, agente firma, guardrails, CAG")
-        ContainerDb(database, "SQL Server", "LegalRentAI app.*", "23 tablas")
-        Container(localStore, "backend/storage", "Disco", "Reportes y JSON LLM")
+        Container(webApp, "frontend/", "React 19, Vite, MUI", "Upload, analysis, chat SSE, closure, signing schedule")
+        Container(api, "backend/", "FastAPI", "Auth, contracts, analysis, chat, signing agent, guardrails, CAG")
+        ContainerDb(database, "SQL Server", "LegalRentAI app.*", "23 tables")
+        Container(localStore, "backend/storage", "Disk", "Reports and LLM JSON")
     }
 
-    System_Ext(llm, "LLM", "LiteLLM multi-proveedor")
+    System_Ext(llm, "LLM", "LiteLLM multi-provider")
 
-    Rel(user, webApp, "Usa", ":3000")
+    Rel(user, webApp, "Uses", ":3000")
     Rel(webApp, api, "REST + SSE", ":8000")
-    Rel(api, database, "Lee/Escribe", "SQL")
-    Rel(api, localStore, "Escribe reportes", "FS")
-    Rel(api, llm, "Analisis y chat", "API")
+    Rel(api, database, "Read/Write", "SQL")
+    Rel(api, localStore, "Writes reports", "FS")
+    Rel(api, llm, "Analysis and chat", "API")
 ```
 
-## Descripción de contenedores
+## Container descriptions
 
-### Aplicación web (`frontend/`)
+### Web application (`frontend/`)
 
-| Atributo | Valor |
+| Attribute | Value |
 |----------|-------|
 | Stack | React 19, TypeScript, Vite, Material UI |
-| Puerto dev | 3000 (`VITE_API_URL` → backend) |
-| Estado | ✅ Dashboard, contratos, análisis, chat, comparaciones, cierre, `/schedule-signing` |
+| Dev port | 3000 (`VITE_API_URL` → backend) |
+| Status | ✅ Dashboard, contracts, analysis, chat, comparisons, closure, `/schedule-signing` |
 
 ### API Backend (`backend/`)
 
-| Atributo | Valor |
+| Attribute | Value |
 |----------|-------|
 | Stack | Python 3.11+, FastAPI, Uvicorn |
-| Puerto dev | 8000 |
-| Entrada | `run_backend.py` (raíz) o `backend/run_backend.py` |
-| Estado | ✅ MVP funcional: ver [api.md](../api.md) |
+| Dev port | 8000 |
+| Entry | `run_backend.py` (root) or `backend/run_backend.py` |
+| Status | ✅ Functional MVP: see [api.md](../api.md) |
 
-### Base de datos
+### Database
 
-| Atributo | Valor |
+| Attribute | Value |
 |----------|-------|
-| Motor | SQL Server 2019+ / Azure SQL |
-| Esquema | `[app]`, 23 tablas |
-| Documentos | `VARBINARY(MAX)` en fila (no Blob en dev) |
+| Engine | SQL Server 2019+ / Azure SQL |
+| Schema | `[app]`, 23 tables |
+| Documents | `VARBINARY(MAX)` in row (no Blob in dev) |
 
-### Almacenamiento de archivos
+### File storage
 
-| Entorno | Uso |
+| Environment | Usage |
 |---------|-----|
-| Dev | Reportes en `backend/storage/reports/`; contratos en SQL |
-| Prod (objetivo) | Azure Blob para artefactos de gran volumen |
+| Dev | Reports in `backend/storage/reports/`; contracts in SQL |
+| Prod (target) | Azure Blob for high-volume artifacts |
 
-### Corpus jurídico (CAG)
+### Legal corpus (CAG)
 
-Markdown curado en `docs/legal-sources/cag-corpus-v1.md`, cargado por `backend/rag/cag_corpus.py` (sin índice vectorial en el MVP actual).
+Curated markdown in `docs/legal-sources/cag-corpus-v1.md`, loaded by `backend/rag/cag_corpus.py` (no vector index in the current MVP).
 
-### Base vectorial
+### Vector database
 
-📋 Planificado (ChromaDB / Azure AI Search). El grounding legal actual es **cache-augmented generation** con corpus estático.
+📋 Planned (ChromaDB / Azure AI Search). Current legal grounding is **cache-augmented generation** with a static corpus.
 
-## Comunicación
+## Communication
 
-| Origen | Destino | Protocolo |
+| Source | Destination | Protocol |
 |--------|---------|-----------|
 | SPA | API | HTTPS JSON + SSE (chat) |
 | API | SQL Server | TDS / pyodbc |
 | API | LLM | HTTPS (OpenAI, Anthropic, etc.) |
-| API | Correo | ACS Email (`AZURE_COMMUNICATION_*`) o SMTP; log si `NOTIFICATION_DEV_MODE=true` |
+| API | Email | ACS Email (`AZURE_COMMUNICATION_*`) or SMTP; log if `NOTIFICATION_DEV_MODE=true` |
 
-### Docker Compose (desarrollo)
+### Docker Compose (development)
 
-| Contenedor | Rol |
+| Container | Role |
 |------------|-----|
-| `api` | Imagen `docker/backend/Dockerfile` |
+| `api` | Image `docker/backend/Dockerfile` |
 | `web` | nginx + proxy `/api` → API (SSE chat) |
-| `sqlserver` + `db-init` | SQL Server 2022 + scripts en `docs/database/` |
+| `sqlserver` + `db-init` | SQL Server 2022 + scripts in `docs/database/` |
 
-Guía: [deployment/docker.md](../deployment/docker.md).
+Guide: [deployment/docker.md](../deployment/docker.md).
 
-## Despliegue Azure (LIDR)
+## Azure deployment (LIDR)
 
-Implementado vía **`scripts/azure/deploy-lidr.ps1`**: ACR, Azure SQL, Container Apps (`legalrent-lidr-api`, `legalrent-lidr-web`). Recursos y pruebas ACS: [deployment/azure-resources.md](../deployment/azure-resources.md).
+Implemented via **`scripts/azure/deploy-lidr.ps1`**: ACR, Azure SQL, Container Apps (`legalrent-lidr-api`, `legalrent-lidr-web`). Resources and ACS tests: [deployment/azure-resources.md](../deployment/azure-resources.md).
 
-Objetivo ampliado: Key Vault para secretos, Azure OpenAI dedicado, Blob para artefactos voluminosos.
+Extended target: Key Vault for secrets, dedicated Azure OpenAI, Blob for high-volume artifacts.

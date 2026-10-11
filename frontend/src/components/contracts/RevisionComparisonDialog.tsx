@@ -68,7 +68,7 @@ function formatCellValue(value: string | null | undefined): string {
 
 function itemLabel(row: ComparisonResult['rows'][number]): string {
   if (row.item_type === 'clause') {
-    return `Cláusula: ${CLAUSE_CATEGORY_LABELS[row.item_key] ?? row.item_key}`;
+    return `Clause: ${CLAUSE_CATEGORY_LABELS[row.item_key] ?? row.item_key}`;
   }
   return EXTRACTED_FIELD_LABELS[row.item_key] ?? row.item_key;
 }
@@ -168,7 +168,7 @@ export default function RevisionComparisonDialog({
     }
     const authHeader = getAuthHeader();
     if (!authHeader) {
-      setError('Tu sesión expiró. Vuelve a iniciar sesión.');
+      setError('Your session has expired. Please sign in again.');
       return;
     }
 
@@ -340,7 +340,7 @@ export default function RevisionComparisonDialog({
     }
     const authHeader = getAuthHeader();
     if (!authHeader) {
-      setError('Tu sesión expiró. Vuelve a iniciar sesión.');
+      setError('Your session has expired. Please sign in again.');
       return;
     }
 
@@ -368,7 +368,7 @@ export default function RevisionComparisonDialog({
     }
     const authHeader = getAuthHeader();
     if (!authHeader) {
-      setError('Tu sesión expiró. Vuelve a iniciar sesión.');
+      setError('Your session has expired. Please sign in again.');
       return;
     }
 
@@ -388,8 +388,8 @@ export default function RevisionComparisonDialog({
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="lg">
       <DialogTitle>
-        Comparación — {contractTitle ?? 'Contrato'}
-        <Chip label="Original vs editado" size="small" sx={{ ml: 1 }} />
+        Comparison — {contractTitle ?? 'Contract'}
+        <Chip label="Original vs edited" size="small" sx={{ ml: 1 }} />
       </DialogTitle>
       <DialogContent dividers>
         {loading && (
@@ -407,23 +407,23 @@ export default function RevisionComparisonDialog({
         {!loading && comparison && (
           <>
             <Tabs value={tab} onChange={(_, value) => setTab(value)} sx={{ mb: 2 }}>
-              <Tab label="Comparación" />
+              <Tab label="Comparison" />
               <Tab label="Chat" />
             </Tabs>
 
             {tab === 0 && (
               <>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  {comparison.summary ?? 'Comparación completada.'} Cambios detectados: {changedCount}.
+                  {comparison.summary ?? 'Comparison complete.'} Changes detected: {changedCount}.
                 </Typography>
                 <TableContainer component={Paper} variant="outlined">
                   <Table size="small" stickyHeader>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 700, minWidth: 180 }}>Dato comparado</TableCell>
-                        <TableCell sx={{ fontWeight: 700, minWidth: 200 }}>Contrato original</TableCell>
-                        <TableCell sx={{ fontWeight: 700, minWidth: 200 }}>Contrato nuevo</TableCell>
-                        <TableCell sx={{ fontWeight: 700, minWidth: 160 }}>Diferencia</TableCell>
+                        <TableCell sx={{ fontWeight: 700, minWidth: 180 }}>Compared field</TableCell>
+                        <TableCell sx={{ fontWeight: 700, minWidth: 200 }}>Original contract</TableCell>
+                        <TableCell sx={{ fontWeight: 700, minWidth: 200 }}>New contract</TableCell>
+                        <TableCell sx={{ fontWeight: 700, minWidth: 160 }}>Difference</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -460,7 +460,7 @@ export default function RevisionComparisonDialog({
                               align="center"
                               sx={{ py: 3 }}
                             >
-                              No hay datos comparables todavía.
+                              No comparable data yet.
                             </Typography>
                           </TableCell>
                         </TableRow>
@@ -474,12 +474,12 @@ export default function RevisionComparisonDialog({
             {tab === 1 && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minHeight: 320 }}>
                 <Typography variant="body2" color="text.secondary">
-                  El asistente usa la tabla de comparación (original vs editado) y el texto de la versión
-                  editada para responder.
+                  The assistant uses the comparison table (original vs edited) and the edited version
+                  text to answer questions.
                 </Typography>
                 {!editedAnalysisId && (
                   <Alert severity="warning">
-                    Aún no hay análisis de la versión editada para habilitar el chat.
+                    There is no analysis of the edited version yet, so chat is unavailable.
                   </Alert>
                 )}
                 {editedAnalysisId && chatLoading && chatMessages.length === 0 && (
@@ -507,7 +507,7 @@ export default function RevisionComparisonDialog({
                       <ChatMessageBubble
                         key={message.id}
                         role={message.role}
-                        authorLabel={message.role === 'user' ? 'Tú' : 'Asistente'}
+                        authorLabel={message.role === 'user' ? 'You' : 'Assistant'}
                         content={message.content}
                         references={message.references}
                         formatReference={formatReference}
@@ -518,7 +518,7 @@ export default function RevisionComparisonDialog({
                   <TextField
                     fullWidth
                     size="small"
-                    placeholder="Pregunta sobre el contrato editado…"
+                    placeholder="Ask about the edited contract…"
                     value={chatInput}
                     onChange={(event) => setChatInput(event.target.value)}
                     disabled={!editedAnalysisId}
@@ -534,7 +534,7 @@ export default function RevisionComparisonDialog({
                     onClick={() => void handleSendChat()}
                     disabled={chatLoading || !editedAnalysisId}
                   >
-                    Enviar
+                    Send
                   </Button>
                 </Box>
               </Box>
@@ -559,7 +559,7 @@ export default function RevisionComparisonDialog({
               onClick={() => void handleDownloadEditedContract()}
               disabled={loading || approving || downloadingEdited}
             >
-              {downloadingEdited ? 'Descargando…' : 'Descargar nuevo contrato'}
+              {downloadingEdited ? 'Downloading…' : 'Download new contract'}
             </Button>
           )}
           {canApproveEditedContract && (
@@ -569,11 +569,11 @@ export default function RevisionComparisonDialog({
               onClick={() => setApproveConfirmOpen(true)}
               disabled={loading || approving || downloadingEdited}
             >
-              {approving ? 'Aprobando…' : 'Marcar como Aprobado'}
+              {approving ? 'Approving…' : 'Mark as Approved'}
             </Button>
           )}
           <Button onClick={handleClose} disabled={loading || approving || downloadingEdited}>
-            Cerrar
+            Close
           </Button>
         </Box>
       </DialogActions>
@@ -586,16 +586,16 @@ export default function RevisionComparisonDialog({
           }
         }}
       >
-        <DialogTitle>Confirmar aprobación</DialogTitle>
+        <DialogTitle>Confirm approval</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            ¿Confirma que acepta la versión editada del contrato? El expediente pasará a estado
-            aprobado. Esta acción indica su conformidad con los cambios realizados por el abogado.
+            Do you accept the edited version of the contract? The case file will move to approved
+            status. This confirms your agreement with the lawyer’s changes.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setApproveConfirmOpen(false)} disabled={approving}>
-            Cancelar
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -607,7 +607,7 @@ export default function RevisionComparisonDialog({
             }}
             disabled={approving}
           >
-            Sí, aprobar
+            Yes, approve
           </Button>
         </DialogActions>
       </Dialog>

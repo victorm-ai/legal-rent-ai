@@ -1,44 +1,44 @@
-# Azure — recursos y alcance
+# Azure — resources and scope
 
-Documentación **sin secretos**. Credenciales en `secrets/azure.local.env` (local, gitignored).
+Documentation **without secrets**. Credentials live in `secrets/azure.local.env` (local, gitignored).
 
-## Grupos de recursos
+## Resource groups
 
-| Grupo | Uso |
+| Group | Purpose |
 |-------|-----|
-| `Dev-Kanbanboard-app` | **Azure Communication Services** ya provisionado (`kanban-communication-service`, `kanban-email-service`). El backend usa el connection string para correos del agente de coordinación de firma. |
-| `lidr` | **Legal Rent AI en Azure**: ACR `legalrentlidracr` (eastus2), Azure SQL `legalrentlidr-sql` (centralus), Container Apps `legalrent-lidr-api` + `legalrent-lidr-web`. Script: `scripts/azure/deploy-lidr.ps1`. |
+| `Dev-Kanbanboard-app` | **Azure Communication Services** already provisioned (`kanban-communication-service`, `kanban-email-service`). The backend uses the connection string for signing coordination agent emails. |
+| `lidr` | **Legal Rent AI on Azure**: ACR `legalrentlidracr` (eastus2), Azure SQL `legalrentlidr-sql` (centralus), Container Apps `legalrent-lidr-api` + `legalrent-lidr-web`. Script: `scripts/azure/deploy-lidr.ps1`. |
 
-Los recursos de correo **no** tienen que moverse a `lidr`: la app en `lidr` puede consumir ACS del otro grupo vía connection string en configuración de la aplicación.
+Email resources **do not** need to move to `lidr`: the app in `lidr` can consume ACS from the other group via connection string in application configuration.
 
-## Variables que usa la API (`.env` / App Service)
+## Variables used by the API (`.env` / App Service)
 
 - `AZURE_COMMUNICATION_CONNECTION_STRING`
-- `AZURE_COMMUNICATION_SENDER_ADDRESS` (dominio verificado en ACS Email)
-- `NOTIFICATION_DEV_MODE=false` para envío real (configurado en `.env` local)
-- `pip install -e .` incluye `azure-communication-email`
+- `AZURE_COMMUNICATION_SENDER_ADDRESS` (verified domain in ACS Email)
+- `NOTIFICATION_DEV_MODE=false` for real sending (configured in local `.env`)
+- `pip install -e .` includes `azure-communication-email`
 
-### Enlace dominio ↔ Communication Service
+### Link domain ↔ Communication Service
 
-Si ACS responde **`DomainNotLinked`**, en Portal Azure:
+If ACS returns **`DomainNotLinked`**, in Azure Portal:
 
-1. Recurso **Email Communication Service** (`kanban-email-service`) → **Provision domains** / dominio Azure managed.
-2. Copia el **MailFrom** (`donotreply@….azurecomm.net`) a `AZURE_COMMUNICATION_SENDER_ADDRESS`.
-3. En **Communication Services** (`kanban-communication-service`) → **Email** → conecta el dominio del paso 1.
+1. **Email Communication Service** resource (`kanban-email-service`) → **Provision domains** / Azure managed domain.
+2. Copy **MailFrom** (`donotreply@….azurecomm.net`) to `AZURE_COMMUNICATION_SENDER_ADDRESS`.
+3. In **Communication Services** (`kanban-communication-service`) → **Email** → connect the domain from step 1.
 
-Prueba local: `python scripts/azure/probe_acs_email_sender.py code.zemoreno@gmail.com`
+Local test: `python scripts/azure/probe_acs_email_sender.py code.zemoreno@gmail.com`
 
-Guía detallada si falla el cierre del contrato: [fix-domain-not-linked.md](./fix-domain-not-linked.md)
+Detailed guide if contract closure fails: [fix-domain-not-linked.md](./fix-domain-not-linked.md)
 
-## Autenticación
+## Authentication
 
-- Desarrollo: portal o `az login`.
-- Producción recomendada: **Managed Identity** o **service principal**, no usuario/contraseña del portal en el servidor.
+- Development: portal or `az login`.
+- Recommended production: **Managed Identity** or **service principal**, not portal user/password on the server.
 
-## Docker local
+## Local Docker
 
-Antes de App Service, validar la app con [docker.md](./docker.md) (`docker compose`).
+Before App Service, validate the app with [docker.md](./docker.md) (`docker compose`).
 
-## Referencia
+## Reference
 
 - [Azure Communication Services Email](https://learn.microsoft.com/azure/communication-services/concepts/email/email-overview)

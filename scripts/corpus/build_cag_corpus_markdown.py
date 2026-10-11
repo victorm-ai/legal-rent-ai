@@ -117,7 +117,7 @@ def parse_articles(block: str) -> dict[str, str]:
 
 def format_article(instrument: str, key: str, body: str) -> str:
     label = key.replace("-BIS", " Bis")
-    return f"### Artículo {label} ({instrument})\n\n{body.strip()}\n"
+    return f"### Article {label} ({instrument})\n\n{body.strip()}\n"
 
 
 def main() -> None:
@@ -144,12 +144,12 @@ def main() -> None:
     cpc_arts = parse_articles(cpc_block)
 
     sections: list[str] = [
-        "# Corpus CAG v1 — Arrendamiento inmobiliario (Jalisco, México)",
+        "# CAG Corpus v1 — Real property lease (Jalisco, Mexico)",
         "",
-        "Texto extraído de los PDF en `docs/legal-sources/` para **precarga en CAG** (contexto jurídico fijo).",
-        "Incluye solo artículos **curados**; no sustituye asesoría legal ni la versión oficial vigente.",
+        "Text extracted from PDFs in `docs/legal-sources/` for **CAG preloading** (fixed legal context).",
+        "Includes **curated** articles only; does not replace legal advice or the current official version.",
         "",
-        "| Metadato | Valor |",
+        "| Metadata | Value |",
         "|----------|--------|",
         "| `corpus_id` | `legal-cag-v1-jal-arrendamiento` |",
         "| `corpus_version` | `2026-09-16` |",
@@ -158,10 +158,10 @@ def main() -> None:
         "",
         "---",
         "",
-        "## 1. Código Civil del Estado de Jalisco",
+        "## 1. Civil Code of the State of Jalisco",
         "",
-        "**Aplicación:** contratos sobre inmuebles en Jalisco (norma sustantiva principal).",
-        f"**Fuente local:** `{jal_pdf.name}`",
+        "**Application:** contracts concerning real property in Jalisco (primary substantive law).",
+        f"**Local source:** `{jal_pdf.name}`",
         "",
     ]
 
@@ -171,23 +171,23 @@ def main() -> None:
         if not body:
             missing_jal.append(key)
             continue
-        sections.append(format_article("CC Jalisco", key, body))
+        sections.append(format_article("Jalisco Civil Code", key, body))
 
     sections.extend(
         [
             "---",
             "",
-            "## 2. Código Civil Federal",
+            "## 2. Federal Civil Code",
             "",
-            "**Aplicación:** conflicto de leyes (art. 13) y referencia supletoria / comparativa en arrendamiento.",
-            f"**Fuente local:** `{ccf_pdf.name}`",
+            "**Application:** conflict of laws (Art. 13) and supplementary / comparative reference for leases.",
+            f"**Local source:** `{ccf_pdf.name}`",
             "",
         ]
     )
 
     body_13 = ccf_13_arts.get("13")
     if body_13:
-        sections.append(format_article("CCF", "13", body_13))
+        sections.append(format_article("Federal Civil Code", "13", body_13))
 
     missing_ccf: list[str] = []
     for key in sorted(CCF_KEEP - {"13"}, key=lambda k: int(k.split("-")[0])):
@@ -195,16 +195,16 @@ def main() -> None:
         if not body:
             missing_ccf.append(key)
             continue
-        sections.append(format_article("CCF", key, body))
+        sections.append(format_article("Federal Civil Code", key, body))
 
     sections.extend(
         [
             "---",
             "",
-            "## 3. Código de Procedimientos Civiles del Estado de Jalisco",
+            "## 3. Code of Civil Procedure of the State of Jalisco",
             "",
-            "**Aplicación:** desocupación del inmueble arrendado (vía sumaria).",
-            f"**Fuente local:** `{cpc_pdf.name}`",
+            "**Application:** vacation of leased real property (summary proceeding).",
+            f"**Local source:** `{cpc_pdf.name}`",
             "",
         ]
     )
@@ -215,27 +215,27 @@ def main() -> None:
         if not body:
             missing_cpc.append(key)
             continue
-        sections.append(format_article("CPC Jalisco", key, body))
+        sections.append(format_article("Jalisco Code of Civil Procedure", key, body))
 
     if missing_jal or missing_ccf or missing_cpc:
-        sections.extend(["---", "", "## Artículos no localizados en el PDF", ""])
+        sections.extend(["---", "", "## Articles not found in PDF", ""])
         if missing_jal:
-            sections.append(f"- CC Jalisco: {', '.join(missing_jal)}")
+            sections.append(f"- Jalisco Civil Code: {', '.join(missing_jal)}")
         if missing_ccf:
-            sections.append(f"- CCF: {', '.join(missing_ccf)}")
+            sections.append(f"- Federal Civil Code: {', '.join(missing_ccf)}")
         if missing_cpc:
-            sections.append(f"- CPC Jalisco: {', '.join(missing_cpc)}")
+            sections.append(f"- Jalisco Code of Civil Procedure: {', '.join(missing_cpc)}")
 
     sections.extend(
         [
             "",
             "---",
             "",
-            "## Uso en el pipeline CAG",
+            "## Use in the CAG pipeline",
             "",
-            "1. Cargar este archivo completo (o por sección) como prefijo de sistema / KV cache.",
-            "2. Al citar, usar `instrument` + número de artículo y validar contra PDF oficial si hubo reforma.",
-            "3. Priorizar **CC Jalisco** cuando el contrato indique Jalisco o el inmueble esté en la entidad.",
+            "1. Load this entire file (or by section) as a system prefix / KV cache.",
+            "2. When citing, use `instrument` + article number and validate against the official PDF if there was a reform.",
+            "3. Prioritize **Jalisco Civil Code** when the contract specifies Jalisco or the property is in the state.",
             "",
         ]
     )

@@ -1,64 +1,64 @@
-# Configuración en SQL Server Management Studio
+# SQL Server Management Studio setup
 
-Guía para crear la base de datos **LegalRentAI** y el esquema `[app]` en SQL Server local.
+Guide to create the **LegalRentAI** database and the `[app]` schema on local SQL Server.
 
-## Requisitos
+## Requirements
 
-| Requisito | Detalle |
+| Requirement | Detail |
 |-----------|---------|
-| SQL Server | 2019+ (Express, Developer o Standard) |
-| SSMS | Cualquier versión reciente |
-| Autenticación | Windows (`localhost`) o SQL Server con usuario/contraseña |
+| SQL Server | 2019+ (Express, Developer, or Standard) |
+| SSMS | Any recent version |
+| Authentication | Windows (`localhost`) or SQL Server with username/password |
 
-## Opción A — Script automático (recomendado)
+## Option A — Automated script (recommended)
 
-Desde la raíz del proyecto, ejecuta:
+From the project root, run:
 
 ```powershell
 .\setup_database.bat
 ```
 
-Esto crea la base de datos, el esquema `[app]`, las **23 tablas**, aplica migraciones incrementales y los usuarios demo (`lawyer`, `client`).
+This creates the database, the `[app]` schema, all **23 tables**, applies incremental migrations, and demo users (`lawyer`, `client`).
 
-Si ya tienes `LegalRentAI` de una versión anterior del proyecto:
+If you already have `LegalRentAI` from an earlier project version:
 
 ```powershell
 .\apply_migrations.bat
 ```
 
-## Opción B — Manual en SSMS
+## Option B — Manual in SSMS
 
-### 1. Conectar al servidor
+### 1. Connect to the server
 
-1. Abre **SQL Server Management Studio**
-2. **Connect** → Server name: **`localhost`** (instancia por defecto)
-3. Authentication: **Windows Authentication** (o SQL Server si lo configuraste)
+1. Open **SQL Server Management Studio**
+2. **Connect** → Server name: **`localhost`** (default instance)
+3. Authentication: **Windows Authentication** (or SQL Server if configured)
 
-> **Error 26 en SSMS:** suele indicar un nombre de instancia incorrecto. En muchas instalaciones **no** existe `SQLEXPRESS`. Usa `localhost` sin sufijo `\instancia` salvo que sepas que tienes una instancia con nombre en ejecución.
+> **Error 26 in SSMS:** usually means an incorrect instance name. On many installs **`SQLEXPRESS` does not exist**. Use `localhost` with no `\instance` suffix unless you know a named instance is running.
 
-> **Error de certificado SSL** (*"La cadena de certificación fue emitida por una entidad en la que no se confía"*): en SSMS 19+ el cifrado viene activado por defecto. En el cuadro **Connect to Server**, abre **Options >>** → pestaña **Connection Properties** → marca **Trust server certificate** (*Confiar en el certificado de servidor*). Es normal en SQL Server local con certificado autofirmado.
+> **SSL certificate error** (*"The certificate chain was issued by an authority that is not trusted"*): in SSMS 19+ encryption is on by default. In **Connect to Server**, open **Options >>** → **Connection Properties** tab → check **Trust server certificate**. This is normal for local SQL Server with a self-signed certificate.
 
-Nombres alternativos válidos para la instancia por defecto: `.`, `(local)`, nombre del equipo.
+Other valid names for the default instance: `.`, `(local)`, computer name.
 
-Si tienes varias instancias, comprueba cuál está activa en `services.msc` → **SQL Server (MSSQLSERVER)** = instancia por defecto.
+If you have multiple instances, check which is active in `services.msc` → **SQL Server (MSSQLSERVER)** = default instance.
 
-### 2. Ejecutar scripts en orden
+### 2. Run scripts in order
 
-Abre cada archivo con **File → Open → File** y pulsa **Execute** (F5):
+Open each file with **File → Open → File** and press **Execute** (F5):
 
-| Orden | Archivo | Qué hace |
+| Order | File | What it does |
 |-------|---------|----------|
-| 1 | `00-create-database.sql` | Crea la BD `LegalRentAI` |
-| 2 | `ddl.sql` | Crea esquema `[app]` y tablas |
-| 3 | `seed.sql` | Inserta usuarios demo (opcional) |
-| 4 | `migrations/run-all-incremental.sql` | Alinea BDs antiguas con el DDL actual (idempotente) |
-| 5 | `migrations/12-migrate-remove-administrator.sql` | Solo si aún existe el rol `administrator` |
+| 1 | `00-create-database.sql` | Creates `LegalRentAI` database |
+| 2 | `ddl.sql` | Creates `[app]` schema and tables |
+| 3 | `seed.sql` | Inserts demo users (optional) |
+| 4 | `migrations/run-all-incremental.sql` | Aligns older DBs with current DDL (idempotent) |
+| 5 | `migrations/12-migrate-remove-administrator.sql` | Only if the `administrator` role still exists |
 
-> Los scripts son idempotentes: si la BD o las tablas ya existen, no fallan.
+> Scripts are idempotent: if the database or tables already exist, they do not fail.
 
-### 3. Verificar en SSMS
+### 3. Verify in SSMS
 
-En **Object Explorer**:
+In **Object Explorer**:
 
 ```
 Databases
@@ -67,10 +67,10 @@ Databases
         └── app.roles
         └── app.users
         └── app.contracts
-        └── ... (23 tablas en total)
+        └── ... (23 tables total)
 ```
 
-Consulta rápida:
+Quick query:
 
 ```sql
 USE LegalRentAI;
@@ -81,20 +81,20 @@ WHERE s.name = N'app'
 ORDER BY t.name;
 ```
 
-Deberías ver **23 tablas** (incluye `chat_llm_call_events`).
+You should see **23 tables** (includes `chat_llm_call_events`).
 
-## Usuarios demo (seed)
+## Demo users (seed)
 
-| Email | Contraseña | Rol |
+| Email | Password | Role |
 |-------|------------|-----|
 | abogado@contractes.com | abogado123 | lawyer |
 | code.zemoreno@gmail.com | cliente123 | client |
 
-> El backend autentica y persiste contratos contra SQL Server (`LegalRentAI`). Usuarios demo en `seed.sql`; documentos en `app.contract_documents.file_content`.
+> The backend authenticates and persists contracts against SQL Server (`LegalRentAI`). Demo users in `seed.sql`; documents in `app.contract_documents.file_content`.
 
-## Conexión desde la aplicación
+## Application connection
 
-Cadena de conexión de ejemplo (Windows Auth); la app lee `DB_*` desde `.env` en la raíz del repo:
+Example connection string (Windows Auth); the app reads `DB_*` from `.env` at repo root:
 
 ```
 Server=localhost;Database=LegalRentAI;Trusted_Connection=True;TrustServerCertificate=True;
@@ -103,11 +103,11 @@ Server=localhost;Database=LegalRentAI;Trusted_Connection=True;TrustServerCertifi
 SQL Server Authentication:
 
 ```
-Server=localhost;Database=LegalRentAI;User Id=sa;Password=<tu_password>;TrustServerCertificate=True;
+Server=localhost;Database=LegalRentAI;User Id=sa;Password=<your_password>;TrustServerCertificate=True;
 ```
 
-## Referencias
+## References
 
-- [schema-design.md](./schema-design.md) — modelo ER y decisiones de diseño
-- [ddl.sql](./ddl.sql) — DDL completo
-- [README.md](./README.md) — índice de documentación de BD
+- [schema-design.md](./schema-design.md) — ER model and design decisions
+- [ddl.sql](./ddl.sql) — full DDL
+- [README.md](./README.md) — database documentation index

@@ -1,74 +1,74 @@
-# Sistema de Análisis de Contratos de Arrendamiento en México — MVP
+# Mexico Residential Lease Contract Analysis System — MVP
 
-## 1. Propósito del documento
+## 1. Document purpose
 
-Este documento consolida los **requerimientos funcionales y no funcionales cumplidos** en el MVP **Legal Rent AI**. Sirve como referencia de alcance entregado, alineación con negocio, trazabilidad a pruebas/API y base para mantenimiento evolutivo.
+This document consolidates the **functional and non-functional requirements delivered** in the **Legal Rent AI** MVP. It serves as a reference for delivered scope, business alignment, traceability to tests/API, and a basis for evolutionary maintenance.
 
-**Estado del documento:** MVP **completado** (septiembre 2026). Todos los ítems listados están implementados en el repositorio (`backend/`, `frontend/`, `docs/`).
-
----
-
-## 2. Visión del producto
-
-El sistema permite cargar contratos de arrendamiento, extraer información relevante, identificar cláusulas, analizar riesgos jurídicos y contractuales con **corpus legal curado (CAG)**, consultar el contrato en chat, generar reportes y colaborar cliente–abogado hasta el cierre del expediente y la coordinación de firma.
-
-El objetivo es **asistir durante una primera revisión contractual**, manteniendo al abogado como autoridad final.
+**Document status:** MVP **completed** (September 2026). All items listed are implemented in the repository (`backend/`, `frontend/`, `docs/`).
 
 ---
 
-## 3. Alcance del MVP entregado
+## 2. Product vision
 
-| Atributo | Valor |
+The system allows uploading lease contracts, extracting relevant information, identifying clauses, analyzing legal and contractual risks with a **curated legal corpus (CAG)**, querying the contract in chat, generating reports, and collaborating client–lawyer through case closure and signing coordination.
+
+The goal is to **assist during an initial contract review**, keeping the lawyer as the final authority.
+
+---
+
+## 3. Delivered MVP scope
+
+| Attribute | Value |
 | -------- | ----- |
-| Dominio | Arrendamiento inmobiliario en México (prioridad Jalisco) |
-| Idioma del dominio legal / documentación | Español |
-| Interfaz web | Inglés (API y mensajes técnicos en inglés) |
-| Formatos | PDF y DOCX, máx. 25 MB |
-| Usuarios | Single-tenant; roles `client` y `lawyer` |
+| Domain | Residential lease in Mexico (Jalisco priority) |
+| Legal domain language / documentation | Spanish (legal domain) / English (product docs) |
+| Web UI | English (API and technical messages in English) |
+| Formats | PDF and DOCX, max. 25 MB |
+| Users | Single-tenant; roles `client` and `lawyer` |
 | Stack | Python (FastAPI), React, SQL Server |
-| Despliegue | Local, Docker Compose y Azure LIDR (script automatizado) |
+| Deployment | Local, Docker Compose, and Azure LIDR (automated script) |
 
 ---
 
-## 4. Actores y roles
+## 4. Actors and roles
 
-| Actor | Rol API | Responsabilidad entregada |
+| Actor | API role | Delivered responsibility |
 | ----- | ------- | ------------------------- |
-| Cliente | `client` | Carga contratos, análisis, chat, reportes, comparación, notificación al abogado, transiciones `draft` → `in_review` → `approved` |
-| Abogado | `lawyer` | Revisión de hallazgos, revisión editada, aprobación de análisis, cierre `terminated`, export de feedback, coordinación de firma |
+| Client | `client` | Upload contracts, analysis, chat, reports, comparison, notify lawyer, transitions `draft` → `in_review` → `approved` |
+| Lawyer | `lawyer` | Review findings, edited revision, analysis approval, `terminated` closure, feedback export, signing coordination |
 
 ---
 
-## 5. Flujo principal (completado)
+## 5. Main flow (completed)
 
 ```mermaid
 flowchart TD
-    subgraph acceso ["Acceso y carga"]
+    subgraph acceso ["Access and upload"]
         A1[Login JWT]
-        A2[Upload PDF/DOCX + perspectiva]
-        A3[Análisis automático sobre original]
+        A2[Upload PDF/DOCX + perspective]
+        A3[Automatic analysis on original]
         A1 --> A2 --> A3
     end
 
-    subgraph ingesta ["Ingesta"]
-        B1[Validación y clasificación RF-08]
-        B2[Extracción de texto RF-06]
+    subgraph ingesta ["Ingestion"]
+        B1[Validation and classification RF-08]
+        B2[Text extraction RF-06]
         A2 --> B1 --> B2
     end
 
-    subgraph analisis ["Análisis IA + CAG"]
-        C1[Extracción estructurada y cláusulas]
-        C2[Hallazgos, riesgos, resumen]
-        C3[Corpus legal CAG en prompts]
+    subgraph analisis ["AI analysis + CAG"]
+        C1[Structured extraction and clauses]
+        C2[Findings, risks, summary]
+        C3[Legal CAG corpus in prompts]
         B2 --> C1 --> C2
         C3 --> C2
     end
 
-    subgraph colaboracion ["Colaboración y cierre"]
-        D1[Dashboard, chat SSE, reportes]
-        D2[Mensajes cliente-abogado]
-        D3[Revisión editada y comparación]
-        D4[Cierre y coordinación de firma]
+    subgraph colaboracion ["Collaboration and closure"]
+        D1[Dashboard, SSE chat, reports]
+        D2[Client–lawyer messages]
+        D3[Edited revision and comparison]
+        D4[Closure and signing coordination]
         C2 --> D1
         D1 --> D2
         D1 --> D3
@@ -79,289 +79,289 @@ flowchart TD
     class A1,A2,A3,B1,B2,C1,C2,C3,D1,D2,D3,D4 done
 ```
 
-### Ciclo de vida del contrato (RF-56)
+### Contract lifecycle (RF-56)
 
-Flujo UI: `draft` → `in_review` → `approved` → `terminated`. Tras `terminated` el expediente queda bloqueado. Coordinación post-cierre: agente LangGraph, correo (ACS/SMTP) y página pública `/schedule-signing?token=`.
+UI flow: `draft` → `in_review` → `approved` → `terminated`. After `terminated` the case is locked. Post-closure coordination: LangGraph agent, email (ACS/SMTP), and public page `/schedule-signing?token=`.
 
-Detalle de transiciones: [contracts.md](./contracts.md), [api.md](./api.md).
+Transition detail: [contracts.md](./contracts.md), [api.md](./api.md).
 
 ---
 
-## 6. Requerimientos funcionales cumplidos
+## 6. Delivered functional requirements
 
-> Convención: **P0** indispensable · **P1** importante · **P2** human-in-the-loop.
+> Convention: **P0** essential · **P1** important · **P2** human-in-the-loop.
 
-### 6.1 Autenticación y usuarios
+### 6.1 Authentication and users
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-01 | P0 | Autenticación de usuarios (JWT, login/logout/registro, sesión persistente en SPA). |
-| RF-02 | P0 | Roles **Abogado** (`lawyer`) y **Cliente** (`client`) con RBAC en API y UI. |
+| RF-01 | P0 | User authentication (JWT, login/logout/registration, persistent session in SPA). |
+| RF-02 | P0 | **Lawyer** (`lawyer`) and **Client** (`client`) roles with RBAC in API and UI. |
 
-### 6.2 Carga y gestión de documentos
+### 6.2 Document upload and management
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-03 | P0 | Carga de contratos PDF y DOCX. |
-| RF-04 | P0 | Rechazo de archivos mayores a 25 MB. |
-| RF-05 | P0 | Múltiples documentos por contrato (anexos). |
-| RF-06 | P0 | Extracción automática de texto PDF/DOCX persistida y consultable. |
-| RF-08 | P0 | Clasificación automática: `main_contract`, `annex`, `other`, `lawyer_revision`. |
-| RF-52 | P0 | Persistencia de contratos, documentos y análisis (perspectiva × alcance documental). |
-| RF-53 | P0 | Soft delete desde UI (sin borrado físico desde el MVP). |
-| RF-55 | P1 | Registro de descargas de contratos y reportes (`download_logs`). |
-| RF-57 | P1 | Flag `is_signed_version` en documentos adicionales. |
+| RF-03 | P0 | Upload of PDF and DOCX contracts. |
+| RF-04 | P0 | Reject files larger than 25 MB. |
+| RF-05 | P0 | Multiple documents per contract (annexes). |
+| RF-06 | P0 | Automatic PDF/DOCX text extraction persisted and queryable. |
+| RF-08 | P0 | Automatic classification: `main_contract`, `annex`, `other`, `lawyer_revision`. |
+| RF-52 | P0 | Persistence of contracts, documents, and analyses (perspective × document scope). |
+| RF-53 | P0 | Soft delete from UI (no physical delete from MVP). |
+| RF-55 | P1 | Log contract and report downloads (`download_logs`). |
+| RF-57 | P1 | `is_signed_version` flag on additional documents. |
 
-### 6.3 Perspectiva y jurisdicción
+### 6.3 Perspective and jurisdiction
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-09 | P0 | Perspectiva de análisis: arrendador, arrendatario, neutral. |
-| RF-10 | P0 | Detección de jurisdicción declarada. |
-| RF-11 | P0 | Alertas por jurisdicción ausente o inconsistente. |
+| RF-09 | P0 | Analysis perspective: landlord, tenant, neutral. |
+| RF-10 | P0 | Detection of declared jurisdiction. |
+| RF-11 | P0 | Alerts for missing or inconsistent jurisdiction. |
 
-### 6.4 Extracción estructurada
+### 6.4 Structured extraction
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-12 | P0 | Identificación de partes (`contract_parties`). |
-| RF-13 | P0 | Extracción estructurada de datos contractuales. |
-| RF-14 | P0 | Catálogo ampliado de campos (renta, depósito, fechas, inmueble, etc.). |
-| RF-15 | P0 | Referencia a página/cláusula en datos extraídos. |
-| RF-16 | P0 | Nivel de confianza por campo. |
-| RF-17 | P0 | Marcado «requiere revisión» cuando la confianza es insuficiente. |
+| RF-12 | P0 | Identification of parties (`contract_parties`). |
+| RF-13 | P0 | Structured extraction of contractual data. |
+| RF-14 | P0 | Extended field catalog (rent, deposit, dates, property, etc.). |
+| RF-15 | P0 | Page/clause reference in extracted data. |
+| RF-16 | P0 | Confidence level per field. |
+| RF-17 | P0 | «Requires review» marking when confidence is insufficient. |
 
-### 6.5 Cláusulas y reglas
+### 6.5 Clauses and rules
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-18 | P0 | Identificación de cláusulas. |
-| RF-19 | P0 | Clasificación por categoría contractual. |
-| RF-20 | P0 | Cláusulas relevantes según taxonomía del MVP. |
-| RF-21 | P0 | Detección de cláusulas faltantes. |
-| RF-22 | P0 | Detección de contradicciones. |
-| RF-23 | P0 | Inconsistencias en montos y porcentajes. |
-| RF-24 | P0 | Inconsistencias en fechas y vigencias. |
-| RF-25 | P0 | Obligaciones principales de arrendador/arrendatario. |
-| RF-26 | P0 | Cláusulas desfavorables según perspectiva. |
+| RF-18 | P0 | Clause identification. |
+| RF-19 | P0 | Classification by contractual category. |
+| RF-20 | P0 | Relevant clauses per MVP taxonomy. |
+| RF-21 | P0 | Detection of missing clauses. |
+| RF-22 | P0 | Detection of contradictions. |
+| RF-23 | P0 | Inconsistencies in amounts and percentages. |
+| RF-24 | P0 | Inconsistencies in dates and terms. |
+| RF-25 | P0 | Main landlord/tenant obligations. |
+| RF-26 | P0 | Unfavorable clauses by perspective. |
 
-### 6.6 Riesgos y hallazgos
+### 6.6 Risks and findings
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-27 | P0 | Severidad bajo / medio / alto por hallazgo. |
-| RF-28 | P0 | Riesgo general del contrato. |
-| RF-29 | P0 | Explicación de cada riesgo. |
-| RF-30 | P0 | Distinción regla legal vs. best practice. |
-| RF-31 | P0 | Fundamento normativo y tabla `legal_citations` cuando aplica; corpus CAG en prompts. |
-| RF-35 | P0 | Recomendación por hallazgo. |
-| RF-36 | P1 | Redacción alternativa sugerida (`suggested_rewording`). |
+| RF-27 | P0 | Low / medium / high severity per finding. |
+| RF-28 | P0 | Overall contract risk. |
+| RF-29 | P0 | Explanation of each risk. |
+| RF-30 | P0 | Distinction legal rule vs. best practice. |
+| RF-31 | P0 | Legal basis and `legal_citations` table when applicable; CAG corpus in prompts. |
+| RF-35 | P0 | Recommendation per finding. |
+| RF-36 | P1 | Suggested alternative wording (`suggested_rewording`). |
 
-### 6.7 Corpus jurídico (CAG)
+### 6.7 Legal corpus (CAG)
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-32′ | P0 | Grounding con **corpus legal autorizado** (`docs/legal-sources/cag-corpus-v1.md`) inyectado en análisis y chat (`LEGAL_CAG_*`). |
-| RF-34′ | P0 | Respuestas de IA apoyadas en fuentes identificables (CAG + evidencia documental + citas persistidas). |
+| RF-32′ | P0 | Grounding with **authorized legal corpus** (`docs/legal-sources/cag-corpus-v1.md`) injected in analysis and chat (`LEGAL_CAG_*`). |
+| RF-34′ | P0 | AI responses supported by identifiable sources (CAG + documentary evidence + persisted citations). |
 
-*Nota: RF-32′/RF-34′ sustituyen en el entregable el diseño original de RAG vectorial; el comportamiento de negocio (fundamentación con fuentes curadas) está cubierto.*
+*Note: RF-32′/RF-34′ replace the original vector RAG design in the deliverable; business behavior (grounding with curated sources) is covered.*
 
-### 6.8 Resultado del análisis
+### 6.8 Analysis outcome
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-37 | P0 | Resumen ejecutivo. |
-| RF-38 | P0 | Resumen con datos clave, riesgo, hallazgos y recomendaciones. |
-| RF-39 | P0 | Hallazgos priorizados por severidad. |
-| RF-40 | P0 | Evidencia documental por hallazgo. |
+| RF-37 | P0 | Executive summary. |
+| RF-38 | P0 | Summary with key data, risk, findings, and recommendations. |
+| RF-39 | P0 | Findings prioritized by severity. |
+| RF-40 | P0 | Documentary evidence per finding. |
 
 ### 6.9 Chat
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-41 | P0 | Chat contextual sobre el contrato. |
-| RF-42 | P0 | Contexto: texto del contrato, anexos, resultados de análisis y corpus CAG. |
-| RF-43 | P0 | Referencias mostradas en respuestas. |
-| RF-44 | P1 | Preguntas sugeridas. |
-| RF-45 | P1 | Explicaciones en lenguaje sencillo (multidioma según mensaje del usuario). |
+| RF-41 | P0 | Contextual chat about the contract. |
+| RF-42 | P0 | Context: contract text, annexes, analysis results, and CAG corpus. |
+| RF-43 | P0 | References shown in responses. |
+| RF-44 | P1 | Suggested questions. |
+| RF-45 | P1 | Plain-language explanations (multilingual per user message). |
 
-### 6.10 Reportes y notificaciones
+### 6.10 Reports and notifications
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-46 | P0 | Descarga de reporte formal. |
-| RF-47 | P0 | Contenido: resumen, datos, riesgos, hallazgos, recomendaciones, citas. |
-| RF-48 | P1 | Formato PDF. |
-| RF-49 | P1 | Formato JSON estructurado. |
-| RF-50 | P0 | Decisión del usuario hacia el abogado (notificación + mensajería en expediente). |
-| RF-51 | P0 | Envío de correo al abogado (ACS Email, SMTP o modo dev). |
+| RF-46 | P0 | Download formal report. |
+| RF-47 | P0 | Content: summary, data, risks, findings, recommendations, citations. |
+| RF-48 | P1 | PDF format. |
+| RF-49 | P1 | Structured JSON format. |
+| RF-50 | P0 | User decision toward lawyer (notification + case messaging). |
+| RF-51 | P0 | Email to lawyer (ACS Email, SMTP, or dev mode). |
 
-### 6.11 Estados, comparación y reglas
+### 6.11 States, comparison, and rules
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-56 | P1 | Estados del contrato y flujo de cierre (`closure_notes`). |
-| RF-58 | P1 | Estados del análisis y workflow de revisión abogado. |
-| RF-59 | P1 | Comparación entre contratos y original vs. revisión editada. |
-| RF-60 | P1 | Detección de cláusulas agregadas/eliminadas. |
-| RF-61 | P1 | Cambios en montos, fechas y obligaciones. |
-| RF-62 | P1 | Variación de riesgo entre versiones. |
-| RF-63 | P1 | Reglas contractuales internas en código (`contract_rules.py`). |
+| RF-56 | P1 | Contract states and closure flow (`closure_notes`). |
+| RF-58 | P1 | Analysis states and lawyer review workflow. |
+| RF-59 | P1 | Comparison between contracts and original vs. edited revision. |
+| RF-60 | P1 | Detection of added/removed clauses. |
+| RF-61 | P1 | Changes in amounts, dates, and obligations. |
+| RF-62 | P1 | Risk variation between versions. |
+| RF-63 | P1 | Internal contractual rules in code (`contract_rules.py`). |
 
-### 6.12 IA, trazabilidad y human-in-the-loop
+### 6.12 AI, traceability, and human-in-the-loop
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-64 | P1 | Trazas técnicas de análisis (`analysis_llm_runs`, `storage/llm-runs/`). |
-| RF-65 | P0 | Modelos comerciales externos (OpenAI, Anthropic, Azure OpenAI). |
-| RF-66 | P0 | Abstracción de proveedor LLM intercambiable. |
-| RF-67 | P1 | Proveedor local (Ollama-compatible). |
-| RF-68 | P2 | Veredicto del abogado sobre hallazgos. |
-| RF-69 | P2 | Aprobación formal del análisis. |
-| RF-70 | P2 | Export de feedback (`/admin/feedback/export`). |
+| RF-64 | P1 | Technical analysis traces (`analysis_llm_runs`, `storage/llm-runs/`). |
+| RF-65 | P0 | External commercial models (OpenAI, Anthropic, Azure OpenAI). |
+| RF-66 | P0 | Interchangeable LLM provider abstraction. |
+| RF-67 | P1 | Local provider (Ollama-compatible). |
+| RF-68 | P2 | Lawyer verdict on findings. |
+| RF-69 | P2 | Formal analysis approval. |
+| RF-70 | P2 | Feedback export (`/admin/feedback/export`). |
 
-### 6.13 Retención y coordinación de firma (entregables adicionales)
+### 6.13 Retention and signing coordination (additional deliverables)
 
-| ID | Pri. | Requerimiento |
+| ID | Pri. | Requirement |
 | -- | ---- | ------------- |
-| RF-54 | P1 | Política de retención (`GET /contracts/retention-policy`) y purga programática (`RetentionService`). |
-| RF-71 | P1 | Coordinación post-cierre: agente de firma, correo con enlace tokenizado y API `/public/signing-schedule`. |
+| RF-54 | P1 | Retention policy (`GET /contracts/retention-policy`) and programmatic purge (`RetentionService`). |
+| RF-71 | P1 | Post-closure coordination: signing agent, email with tokenized link, and `/public/signing-schedule` API. |
 
 ---
 
-## 7. Requerimientos no funcionales cumplidos
+## 7. Delivered non-functional requirements
 
-### 7.1 Rendimiento y capacidad
+### 7.1 Performance and capacity
 
-| ID | Requerimiento |
+| ID | Requirement |
 | -- | ------------- |
-| RNF-01 | Soporte a 10 usuarios concurrentes (smoke test). |
-| RNF-02 | ~10 análisis diarios en operación demo. |
-| RNF-03 | Archivos hasta 25 MB. |
-| RNF-04 | Contratos ~20 páginas como escenario habitual. |
-| RNF-05 | SLA objetivo ≤ 60 s (`analysis_sla_ms`). |
-| RNF-06 | Progreso visible del análisis (polling / async). |
+| RNF-01 | Support 10 concurrent users (smoke test). |
+| RNF-02 | ~10 analyses per day in demo operation. |
+| RNF-03 | Files up to 25 MB. |
+| RNF-04 | ~20-page contracts as typical scenario. |
+| RNF-05 | Target SLA ≤ 60 s (`analysis_sla_ms`). |
+| RNF-06 | Visible analysis progress (polling / async). |
 
-### 7.2 Calidad de IA
+### 7.2 AI quality
 
-| ID | Requerimiento |
+| ID | Requirement |
 | -- | ------------- |
-| RNF-08 | No presentar inferencias como hechos confirmados (`requires_review`). |
-| RNF-09 | Evidencia y referencias en hallazgos; guardrails de evidencia. |
-| RNF-10 | Mensaje explícito cuando falta evidencia. |
-| RNF-11 | Grounding vía CAG y guardrails de dominio/injection. |
-| RNF-12 | Separación hechos / interpretación / recomendación en UI y reportes. |
-| RNF-13 | Confidence en campos y hallazgos críticos. |
-| RNF-14 | Prompts versionados (`prompt_id` en runs). |
+| RNF-08 | Do not present inferences as confirmed facts (`requires_review`). |
+| RNF-09 | Evidence and references in findings; evidence guardrails. |
+| RNF-10 | Explicit message when evidence is missing. |
+| RNF-11 | Grounding via CAG and domain/injection guardrails. |
+| RNF-12 | Separation facts / interpretation / recommendation in UI and reports. |
+| RNF-13 | Confidence on fields and critical findings. |
+| RNF-14 | Versioned prompts (`prompt_id` in runs). |
 
-### 7.3 Seguridad
+### 7.3 Security
 
-| ID | Requerimiento |
+| ID | Requirement |
 | -- | ------------- |
-| RNF-16 | HTTPS opcional forzado (`force_https`). |
-| RNF-17 | Acceso autenticado a rutas protegidas. |
-| RNF-18 | RBAC por rol. |
-| RNF-19 | Documentos no expuestos públicamente (SQL + token temporal). |
-| RNF-20 | Secretos vía `.env` / configuración de despliegue. |
-| RNF-21 | Tokens de descarga con TTL. |
-| RNF-22 | Validación de tipo, extensión y tamaño de archivo. |
+| RNF-16 | Optional forced HTTPS (`force_https`). |
+| RNF-17 | Authenticated access to protected routes. |
+| RNF-18 | RBAC by role. |
+| RNF-19 | Documents not exposed publicly (SQL + temporary token). |
+| RNF-20 | Secrets via `.env` / deployment configuration. |
+| RNF-21 | Download tokens with TTL. |
+| RNF-22 | File type, extension, and size validation. |
 
-### 7.4 Resiliencia, mantenibilidad, escalabilidad
+### 7.4 Resilience, maintainability, scalability
 
-| ID | Requerimiento |
+| ID | Requirement |
 | -- | ------------- |
-| RNF-23 | Errores controlados ante fallo de LLM. |
-| RNF-24 | Logging de errores en pipeline documental y análisis. |
-| RNF-25 | Fallo de análisis no elimina el contrato cargado. |
-| RNF-28 | Backend en Python. |
-| RNF-29 | Lógica de negocio separada de proveedores IA. |
-| RNF-30 | Abstracción común de LLM. |
-| RNF-31 | Prompts y reglas centralizados. |
-| RNF-32 | Módulos: documentos, análisis, chat, reportes, notificaciones, CAG. |
-| RNF-33 | Repositorio Git. |
-| RNF-34 | Configuración por variables de entorno. |
-| RNF-35 | Sin límite artificial de contratos almacenados. |
-| RNF-36 | Análisis asíncrono opcional (`ANALYSIS_ASYNC`). |
-| RNF-37 | Jurisdicción como campo extensible. |
-| RNF-38 | Modelo genérico extensible a otros tipos de contrato. |
+| RNF-23 | Controlled errors on LLM failure. |
+| RNF-24 | Error logging in document and analysis pipeline. |
+| RNF-25 | Analysis failure does not delete uploaded contract. |
+| RNF-28 | Python backend. |
+| RNF-29 | Business logic separated from AI providers. |
+| RNF-30 | Common LLM abstraction. |
+| RNF-31 | Centralized prompts and rules. |
+| RNF-32 | Modules: documents, analysis, chat, reports, notifications, CAG. |
+| RNF-33 | Git repository. |
+| RNF-34 | Configuration via environment variables. |
+| RNF-35 | No artificial limit on stored contracts. |
+| RNF-36 | Optional async analysis (`ANALYSIS_ASYNC`). |
+| RNF-37 | Jurisdiction as extensible field. |
+| RNF-38 | Generic model extensible to other contract types. |
 
-### 7.5 Usabilidad y trazabilidad
+### 7.5 Usability and traceability
 
-| ID | Requerimiento |
+| ID | Requirement |
 | -- | ------------- |
-| RNF-40 | Flujo corto: login → upload → análisis automático. |
-| RNF-41 | Hallazgos ordenados por criticidad. |
-| RNF-42 | Lenguaje claro en resúmenes y chat. |
-| RNF-43 | Términos jurídicos con explicación cuando aplica. |
-| RNF-44 | Navegación a evidencia en documento. |
-| RNF-45 | Diferenciación visual de severidad. |
-| RNF-46 | Trazabilidad de datos extraídos al documento. |
-| RNF-47 | Trazabilidad de conclusiones a citas / CAG / evidencia. |
-| RNF-48 | Registro de modelo y fecha por análisis. |
-| RNF-49 | Registro de descargas. |
-| RNF-50 | Investigación post-hoc vía runs y metadata LLM. |
+| RNF-40 | Short flow: login → upload → automatic analysis. |
+| RNF-41 | Findings ordered by criticality. |
+| RNF-42 | Clear language in summaries and chat. |
+| RNF-43 | Legal terms explained when applicable. |
+| RNF-44 | Navigation to evidence in document. |
+| RNF-45 | Visual differentiation of severity. |
+| RNF-46 | Traceability of extracted data to document. |
+| RNF-47 | Traceability of conclusions to citations / CAG / evidence. |
+| RNF-48 | Model and date recorded per analysis. |
+| RNF-49 | Download logging. |
+| RNF-50 | Post-hoc investigation via runs and LLM metadata. |
 
 ---
 
-## 8. Criterios de aceptación del MVP (escenario completo)
+## 8. MVP acceptance criteria (full scenario)
 
-| # | Paso | Resultado |
+| # | Step | Result |
 | - | ---- | --------- |
-| 1 | Login con persistencia de sesión | ✅ |
-| 2 | Crear expediente (upload) | ✅ |
-| 3 | Elegir perspectiva de análisis | ✅ |
-| 4 | Cargar PDF/DOCX | ✅ |
-| 5 | Adjuntar anexos | ✅ |
-| 6 | Extracción de texto | ✅ |
-| 7 | Datos principales extraídos | ✅ |
-| 8 | Jurisdicción detectada | ✅ |
-| 9 | Cláusulas identificadas | ✅ |
-| 10 | Grounding con corpus legal CAG | ✅ |
-| 11 | Hallazgos generados | ✅ |
-| 12 | Nivel de riesgo por hallazgo | ✅ |
-| 13 | Evidencia documental | ✅ |
-| 14 | Fundamento legal / citas | ✅ |
-| 15 | Resumen ejecutivo | ✅ |
-| 16 | Chat contextual (SSE) | ✅ |
-| 17 | Descarga de reporte PDF/JSON | ✅ |
-| 18 | Notificación al abogado | ✅ |
-| 19 | Revisión editada y comparación | ✅ |
-| 20 | Cierre del expediente y coordinación de firma | ✅ |
+| 1 | Login with session persistence | ✅ |
+| 2 | Create case (upload) | ✅ |
+| 3 | Choose analysis perspective | ✅ |
+| 4 | Upload PDF/DOCX | ✅ |
+| 5 | Attach annexes | ✅ |
+| 6 | Text extraction | ✅ |
+| 7 | Main data extracted | ✅ |
+| 8 | Jurisdiction detected | ✅ |
+| 9 | Clauses identified | ✅ |
+| 10 | Grounding with legal CAG corpus | ✅ |
+| 11 | Findings generated | ✅ |
+| 12 | Risk level per finding | ✅ |
+| 13 | Documentary evidence | ✅ |
+| 14 | Legal basis / citations | ✅ |
+| 15 | Executive summary | ✅ |
+| 16 | Contextual chat (SSE) | ✅ |
+| 17 | PDF/JSON report download | ✅ |
+| 18 | Notification to lawyer | ✅ |
+| 19 | Edited revision and comparison | ✅ |
+| 20 | Case closure and signing coordination | ✅ |
 
-**Resultado:** 20 / 20 pasos — **MVP aceptado**.
+**Result:** 20 / 20 steps — **MVP accepted**.
 
 ---
 
-## 9. Métricas de diseño (objetivos cumplidos en entorno objetivo)
+## 9. Design metrics (objectives met in target environment)
 
-| Métrica | Objetivo |
+| Metric | Target |
 | ------- | -------- |
-| Usuarios concurrentes | 10 |
-| Análisis diarios | ~10 |
-| Tamaño máximo de archivo | 25 MB |
-| Contrato típico | ~20 páginas |
-| Tiempo objetivo de análisis | ≤ 60 s |
-| Idioma dominio / docs | Español |
-| Jurisdicción inicial | Jalisco, México |
+| Concurrent users | 10 |
+| Daily analyses | ~10 |
+| Maximum file size | 25 MB |
+| Typical contract | ~20 pages |
+| Target analysis time | ≤ 60 s |
+| Domain language / docs | Spanish (legal domain) / English (product docs) |
+| Initial jurisdiction | Jalisco, Mexico |
 
 ---
 
-## 10. Resumen ejecutivo
+## 10. Executive summary
 
-Legal Rent AI entrega un monorepo **frontend + backend** que convierte contratos de arrendamiento en **datos estructurados, hallazgos, riesgos, recomendaciones y evidencias trazables**, con **corpus legal CAG**, chat, reportes, colaboración cliente–abogado, comparación de versiones, cierre de expediente y coordinación de firma.
+Legal Rent AI delivers a **frontend + backend** monorepo that turns lease contracts into **structured data, findings, risks, recommendations, and traceable evidence**, with **legal CAG corpus**, chat, reports, client–lawyer collaboration, version comparison, case closure, and signing coordination.
 
-La arquitectura modular permite cambiar proveedor LLM, desplegar en Docker o Azure LIDR y extender jurisdicciones y tipos contractuales sin rediseño del núcleo.
+The modular architecture allows changing LLM provider, deploying on Docker or Azure LIDR, and extending jurisdictions and contract types without redesigning the core.
 
 ---
 
-## 11. Referencias
+## 11. References
 
-| Documento | Contenido |
+| Document | Content |
 | --------- | --------- |
-| [api.md](./api.md) | Endpoints REST |
-| [authentication.md](./authentication.md) | JWT y roles |
-| [contracts.md](./contracts.md) | Upload, estados, retención |
-| [database/README.md](./database/README.md) | Modelo SQL |
+| [api.md](./api.md) | REST endpoints |
+| [authentication.md](./authentication.md) | JWT and roles |
+| [contracts.md](./contracts.md) | Upload, states, retention |
+| [database/README.md](./database/README.md) | SQL model |
 | [architecture/README.md](./architecture/README.md) | C4 |
-| [legal-sources/README.md](./legal-sources/README.md) | Corpus CAG |
-| [deployment/docker.md](./deployment/docker.md) | Docker local |
+| [legal-sources/README.md](./legal-sources/README.md) | CAG corpus |
+| [deployment/docker.md](./deployment/docker.md) | Local Docker |

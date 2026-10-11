@@ -441,7 +441,7 @@ async def create_revision_comparison(
         return _comparison_to_response(comparison, changes, rows)
     except ComparisonError as exc:
         message = exc.message.lower()
-        if "versión editada" not in message and "edited" not in message:
+        if "edited version" not in message and "edited" not in message:
             raise HTTPException(status_code=422, detail=exc.message) from exc
 
     try:
@@ -456,7 +456,7 @@ async def create_revision_comparison(
             background_tasks.add_task(analysis_service.run_pipeline_for_analysis, analysis.id)
             raise HTTPException(
                 status_code=202,
-                detail="El análisis de la versión editada está en proceso. Intente la comparación de nuevo en unos momentos.",
+                detail="Analysis of the edited version is in progress. Try the comparison again in a few moments.",
             )
     except AnalysisPipelineError as exc:
         detail = exc.args[0] if exc.args else str(exc)

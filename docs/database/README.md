@@ -1,100 +1,100 @@
-# Base de datos — Legal Rent AI
+# Database — Legal Rent AI
 
-Modelo relacional del MVP en **Microsoft SQL Server**. El backend (`backend/data/`) accede vía **pyodbc**.
+Relational model for the MVP on **Microsoft SQL Server**. The backend (`backend/data/`) connects via **pyodbc**.
 
-## Índice
+## Index
 
-| Documento | Descripción |
+| Document | Description |
 |-----------|-------------|
-| [schema-design.md](./schema-design.md) | Modelo ER, tablas y decisiones de diseño |
-| [setup-ssms.md](./setup-ssms.md) | Crear la BD en SQL Server Management Studio |
-| [00-create-database.sql](./00-create-database.sql) | Crea `LegalRentAI` |
-| [ddl.sql](./ddl.sql) | DDL canónico: esquema `[app]` y **23 tablas** |
-| [seed.sql](./seed.sql) | Usuarios demo (`lawyer`, `client`) |
-| [migrations/run-all-incremental.sql](./migrations/run-all-incremental.sql) | Migraciones idempotentes |
-| [12-migrate-remove-administrator.sql](./migrations/12-migrate-remove-administrator.sql) | Elimina rol legacy `administrator` |
-| [migrations/](./migrations/) | Scripts incrementales (texto, chat observability, etc.) |
+| [schema-design.md](./schema-design.md) | ER model, tables, and design decisions |
+| [setup-ssms.md](./setup-ssms.md) | Create the database in SQL Server Management Studio |
+| [00-create-database.sql](./00-create-database.sql) | Creates `LegalRentAI` |
+| [ddl.sql](./ddl.sql) | Canonical DDL: `[app]` schema and **23 tables** |
+| [seed.sql](./seed.sql) | Demo users (`lawyer`, `client`) |
+| [migrations/run-all-incremental.sql](./migrations/run-all-incremental.sql) | Idempotent migrations |
+| [12-migrate-remove-administrator.sql](./migrations/12-migrate-remove-administrator.sql) | Removes legacy `administrator` role |
+| [migrations/](./migrations/) | Incremental scripts (text, chat observability, etc.) |
 
-## Instalación rápida
+## Quick setup
 
-Desde la **raíz del repositorio**:
+From the **repository root**:
 
 ```powershell
-.\setup_database.bat      # BD nueva: create + ddl + seed + migraciones
-.\apply_migrations.bat    # Solo actualizar BD existente
+.\setup_database.bat      # New DB: create + ddl + seed + migrations
+.\apply_migrations.bat    # Update existing DB only
 ```
 
-Manual en SSMS: [setup-ssms.md](./setup-ssms.md).
+Manual in SSMS: [setup-ssms.md](./setup-ssms.md).
 
-**Verificación del esquema:**
+**Schema verification:**
 
 ```bash
 python scripts/db/verify_database_schema.py
 ```
 
-(Requiere `.env` con `DB_*` y paquetes instalados; el script añade `backend/` al path.)
+(Requires `.env` with `DB_*` and installed packages; the script adds `backend/` to the path.)
 
-## Resumen
+## Summary
 
-| Atributo | Valor |
+| Attribute | Value |
 |----------|-------|
-| Motor | SQL Server 2019+ (Azure SQL compatible) |
-| Base | `LegalRentAI` |
-| Esquema | `app` |
-| Identificadores | `UNIQUEIDENTIFIER` (`NEWSEQUENTIALID()`) |
-| Soft delete | Contratos y documentos (RF-53) |
-| Documentos | `VARBINARY(MAX)` en `contract_documents.file_content` |
-| Roles activos | `lawyer` (id=1), `client` (id=2) |
-| Config app | `.env` en raíz del repo → `backend/config/settings.py` |
+| Engine | SQL Server 2019+ (Azure SQL compatible) |
+| Database | `LegalRentAI` |
+| Schema | `app` |
+| Identifiers | `UNIQUEIDENTIFIER` (`NEWSEQUENTIALID()`) |
+| Soft delete | Contracts and documents (RF-53) |
+| Documents | `VARBINARY(MAX)` in `contract_documents.file_content` |
+| Active roles | `lawyer` (id=1), `client` (id=2) |
+| App config | `.env` at repo root → `backend/config/settings.py` |
 
-**Fuente de verdad:** [`ddl.sql`](./ddl.sql). Bases antiguas: ejecutar [`migrations/run-all-incremental.sql`](./migrations/run-all-incremental.sql) y, si existía rol `administrator`, [`migrations/12-migrate-remove-administrator.sql`](./migrations/12-migrate-remove-administrator.sql).
+**Source of truth:** [`ddl.sql`](./ddl.sql). Older databases: run [`migrations/run-all-incremental.sql`](./migrations/run-all-incremental.sql) and, if the `administrator` role existed, [`migrations/12-migrate-remove-administrator.sql`](./migrations/12-migrate-remove-administrator.sql).
 
-## Tablas por módulo
+## Tables by module
 
-| Módulo | Tablas |
+| Module | Tables |
 |--------|--------|
 | Auth (RF-01, RF-02) | `roles`, `users` |
-| Contratos (RF-03–RF-08) | `contracts`, `contract_documents`, `contract_parties` |
-| Análisis | `analyses`, `extracted_fields`, `clauses`, `findings`, `legal_citations` |
-| Trazas LLM (RF-64) | `analysis_llm_runs` (+ JSON en `backend/storage/llm-runs/`) |
+| Contracts (RF-03–RF-08) | `contracts`, `contract_documents`, `contract_parties` |
+| Analysis | `analyses`, `extracted_fields`, `clauses`, `findings`, `legal_citations` |
+| LLM traces (RF-64) | `analysis_llm_runs` (+ JSON in `backend/storage/llm-runs/`) |
 | Chat (RF-41–RF-45) | `chat_sessions`, `chat_messages`, `chat_llm_call_events` |
-| Reportes / auditoría | `reports`, `download_logs` |
-| Notificaciones | `notifications` |
-| Mensajería expediente | `review_messages`, `review_message_read_cursors` |
-| Comparaciones | `contract_comparisons`, `comparison_changes` |
-| Revisión abogado | `finding_reviews`, `analysis_approvals` |
+| Reports / audit | `reports`, `download_logs` |
+| Notifications | `notifications` |
+| Case messaging | `review_messages`, `review_message_read_cursors` |
+| Comparisons | `contract_comparisons`, `comparison_changes` |
+| Lawyer review | `finding_reviews`, `analysis_approvals` |
 
-## Migraciones destacadas (orden en `run-all-incremental.sql`)
+## Notable migrations (order in `run-all-incremental.sql`)
 
-| Script | Tema |
+| Script | Topic |
 |--------|------|
-| `01-add-file-content.sql` | Binario en BD |
-| `02-add-text-extraction.sql` | Texto extraído |
-| `03-add-analysis-statuses.sql` | Estados de análisis |
-| `04-add-analysis-perspective.sql` | Perspectiva |
-| `05-review-messages.sql` | Mensajes revisión |
-| `06-document-text-edits.sql` / `06-review-message-read-cursors.sql` | Ediciones / lectura |
-| `07-lawyer-revision-document.sql` | Tipo `lawyer_revision` |
+| `01-add-file-content.sql` | Binary in DB |
+| `02-add-text-extraction.sql` | Extracted text |
+| `03-add-analysis-statuses.sql` | Analysis states |
+| `04-add-analysis-perspective.sql` | Perspective |
+| `05-review-messages.sql` | Review messages |
+| `06-document-text-edits.sql` / `06-review-message-read-cursors.sql` | Edits / read cursors |
+| `07-lawyer-revision-document.sql` | `lawyer_revision` type |
 | `08-add-analysis-document-scope.sql` | `original` / `lawyer_revision` |
-| `09-findings-confidence.sql` | Confianza en hallazgos |
-| `10-chat-llm-observability.sql` | Eventos LLM en chat |
-| `11-update-client-demo-email.sql` | Email demo client → `code.zemoreno@gmail.com` |
-| `12-migrate-remove-administrator.sql` | Catálogo de roles sin `administrator` |
+| `09-findings-confidence.sql` | Finding confidence |
+| `10-chat-llm-observability.sql` | LLM events in chat |
+| `11-update-client-demo-email.sql` | Demo client email → `code.zemoreno@gmail.com` |
+| `12-migrate-remove-administrator.sql` | Role catalog without `administrator` |
 
-## Columnas alineadas con el código (2026)
+## Columns aligned with code (2026)
 
-| Tabla | Notas |
+| Table | Notes |
 |-------|--------|
-| `contracts` | `closure_notes`, estados de ciclo de vida, soft delete |
+| `contracts` | `closure_notes`, lifecycle states, soft delete |
 | `contract_documents` | `document_type` incl. `lawyer_revision`; `extraction_method` incl. `edited` |
-| `analyses` | `perspective`, `document_scope`; índice único por contrato + perspectiva + scope |
+| `analyses` | `perspective`, `document_scope`; unique index per contract + perspective + scope |
 | `findings` | `confidence` |
-| `chat_llm_call_events` | Observabilidad de costos/latencia en chat |
+| `chat_llm_call_events` | Chat cost/latency observability |
 
-## Referencias
+## References
 
-- [Requerimientos](../requirements.md)
-- [Autenticación](../authentication.md)
-- [Contratos](../contracts.md)
-- [API REST](../api.md)
-- [Arquitectura — contenedores](../architecture/c4-level2-containers.md)
+- [Requirements](../requirements.md)
+- [Authentication](../authentication.md)
+- [Contracts](../contracts.md)
+- [REST API](../api.md)
+- [Architecture — containers](../architecture/c4-level2-containers.md)

@@ -53,19 +53,19 @@ function allowedTargets(role: string, currentStatus: string): string[] {
 
 function statusConfirmMessage(fromStatus: string, toStatus: string): string {
   if (fromStatus === 'draft' && toStatus === 'in_review') {
-    return '¿Enviar este contrato a revisión legal? El abogado podrá ver el expediente.';
+    return 'Send this contract for legal review? The lawyer will be able to view the case file.';
   }
 
   const fromLabel = STATUS_LABELS[fromStatus] ?? fromStatus;
   const toLabel = STATUS_LABELS[toStatus] ?? toStatus;
-  return `¿Cambiar el estado de "${fromLabel}" a "${toLabel}"?`;
+  return `Change status from "${fromLabel}" to "${toLabel}"?`;
 }
 
 function applyButtonLabel(fromStatus: string, toStatus: string): string {
   if (fromStatus === 'draft' && toStatus === 'in_review') {
-    return 'Enviar a revisión';
+    return 'Send for review';
   }
-  return 'Aplicar cambio';
+  return 'Apply change';
 }
 
 function statusChipColor(status: string): 'success' | 'warning' | 'error' | 'default' | 'info' {
@@ -86,19 +86,19 @@ function statusChipColor(status: string): 'success' | 'warning' | 'error' | 'def
 
 function statusHint(role: string | undefined, status: string): string | null {
   if (isContractLocked(status)) {
-    return 'Expediente cerrado. No admite cambios.';
+    return 'Case file closed. No further changes allowed.';
   }
   if (role === 'lawyer' && status === 'in_review') {
-    return 'En revisión legal. Suba la versión editada cuando esté lista.';
+    return 'In legal review. Upload the edited version when ready.';
   }
   if (role === 'client' && status === 'in_review') {
-    return 'En espera de la versión editada del abogado.';
+    return 'Waiting for the lawyer’s edited version.';
   }
   if (role === 'client' && status === 'approved') {
-    return 'Contrato aprobado. En espera del cierre del abogado.';
+    return 'Contract approved. Waiting for the lawyer to close the case file.';
   }
   if (role === 'lawyer' && status === 'approved') {
-    return 'El cliente aprobó la versión editada. Puede cerrar el expediente.';
+    return 'The client approved the edited version. You may close the case file.';
   }
   return null;
 }
@@ -218,7 +218,7 @@ export default function ContractStatusSelect({
         {contract.closure_notes && (
           <Alert severity="info" sx={{ mt: 0.5, maxWidth: 420 }}>
             <Typography variant="caption" component="div" sx={{ fontWeight: 600 }}>
-              Notas finales del abogado
+              Lawyer’s closing notes
             </Typography>
             <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
               {contract.closure_notes}
@@ -234,10 +234,10 @@ export default function ContractStatusSelect({
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-end' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           <FormControl size="small" sx={{ minWidth: 180 }} disabled={saving}>
-            <InputLabel id="contract-status-label">Estado</InputLabel>
+            <InputLabel id="contract-status-label">Status</InputLabel>
             <Select
               labelId="contract-status-label"
-              label="Estado"
+              label="Status"
               value={pendingStatus}
               onChange={handleSelectChange}
             >
@@ -272,16 +272,16 @@ export default function ContractStatusSelect({
       </Box>
 
       <Dialog open={confirmOpen} onClose={handleConfirmCancel}>
-        <DialogTitle>Confirmar cambio de estado</DialogTitle>
+        <DialogTitle>Confirm status change</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {statusConfirmMessage(contract.status, pendingStatus)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleConfirmCancel}>Cancelar</Button>
+          <Button onClick={handleConfirmCancel}>Cancel</Button>
           <Button variant="contained" onClick={() => void handleConfirmYes()} autoFocus>
-            Sí
+            Yes
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,9 +1,9 @@
-# Corpus CAG v1 — Arrendamiento inmobiliario (Jalisco, México)
+# CAG Corpus v1 — Real property lease (Jalisco, Mexico)
 
-Texto extraído de los PDF en `docs/legal-sources/` para **precarga en CAG** (contexto jurídico fijo).
-Incluye solo artículos **curados**; no sustituye asesoría legal ni la versión oficial vigente.
+Text extracted from PDFs in `docs/legal-sources/` for **CAG preloading** (fixed legal context).
+Includes **curated** articles only; does not replace legal advice or the current official version.
 
-| Metadato | Valor |
+| Metadata | Value |
 |----------|--------|
 | `corpus_id` | `legal-cag-v1-jal-arrendamiento` |
 | `corpus_version` | `2026-09-16` |
@@ -12,30 +12,30 @@ Incluye solo artículos **curados**; no sustituye asesoría legal ni la versión
 
 ---
 
-## 1. Código Civil del Estado de Jalisco
+## 1. Civil Code of the State of Jalisco
 
-**Aplicación:** contratos sobre inmuebles en Jalisco (norma sustantiva principal).
-**Fuente local:** `codigo-civil-jalisco.pdf`
+**Application:** contracts concerning real property in Jalisco (primary substantive law).
+**Local source:** `codigo-civil-jalisco.pdf`
 
-### Artículo 1980 (CC Jalisco)
+### Article 1980 (Jalisco Civil Code)
 
 Es arrendamiento aquél contrato por virtud del cual, las dos partes contratantes se 
 obligan recíprocamente; una de ellas, denominada arrendador, a permitir el uso o goce temporal de un 
 bien; y la otra, llamada arrendatario, a pagar por ese uso o goce, un precio cierto.
 
-### Artículo 1981 (CC Jalisco)
+### Article 1981 (Jalisco Civil Code)
 
 La renta o precio del arrendamiento puede consistir en una suma de dinero o en 
 cualquiera otra cosa equivalente, con tal que sea cierta y determinada o determinable al momento del 
 pago.
 
-### Artículo 1981 Bis (CC Jalisco)
+### Article 1981 Bis (Jalisco Civil Code)
 
 Tratándose de bienes inmuebles, las partes no pueden convenir en ningún 
 momento, bajo pena de nulidad, interés de ningún tipo que exceda lo contemplado en los artículos 
 comprendidos del 1974 al 1977 en el capítulo de este Código referente a mutuo con interés.
 
-### Artículo 1982 (CC Jalisco)
+### Article 1982 (Jalisco Civil Code)
 
 Son susceptibles de arrendamiento todos los bienes que pueden usarse sin 
 consumirse por su primer uso, excepto aquéllos que la ley prohibe arrendar y los derechos de 
@@ -44,7 +44,7 @@ personalidad.
 Los bienes consumibles podrán arrendarse cuando se altere el destino natural del bien y se le dé otra 
 aplicación que no lo consuma por su primer uso.
 
-### Artículo 1983 (CC Jalisco)
+### Article 1983 (Jalisco Civil Code)
 
 Podrá arrendar el bien quien tenga la: 
  
@@ -55,7 +55,7 @@ disposición; y
  
 III. Facultad para conceder el uso o goce de los bienes ajenos, por autorización expresa de la ley.
 
-### Artículo 1986 (CC Jalisco)
+### Article 1986 (Jalisco Civil Code)
 
 Tienen incapacidad para arrendar: 
  
@@ -74,7 +74,7 @@ que administren; y
  
 V. Las personas que de conformidad con este código, carezcan de capacidad de ejercicio.
 
-### Artículo 1995 (CC Jalisco)
+### Article 1995 (Jalisco Civil Code)
 
 El arrendador está obligado, aunque no haya pacto expreso a: 
  
@@ -115,18 +115,18 @@ Mutuo con interés.
 La entrega de los documentos a que se refiere la fracción IX, presume la existencia del contrato de 
 arrendamiento y el pago de la deuda constante en ellos.
 
-### Artículo 1996 (CC Jalisco)
+### Article 1996 (Jalisco Civil Code)
 
 La entrega del bien se hará en el tiempo convenido; y si no hubiere convenio, se 
 estará a lo dispuesto en este título.
 
-### Artículo 1997 (CC Jalisco)
+### Article 1997 (Jalisco Civil Code)
 
 El arrendatario está obligado a poner en conocimiento del arrendador, a la brevedad 
 posible, la necesidad de las reparaciones, bajo pena de pagar los daños y perjuicios que su omisión 
 cause.
 
-### Artículo 2005 (CC Jalisco)
+### Article 2005 (Jalisco Civil Code)
 
 El arrendatario está obligado a: 
  
@@ -155,19 +155,19 @@ VIII. Tratándose de arrendamiento de inmuebles, pagar como máximo de intereses
 mora, lo estipulado en los artículos comprendidos del 1974 al 1977 en el capítulo de este Código 
 referente a mutuo con interés.
 
-### Artículo 2006 (CC Jalisco)
+### Article 2006 (Jalisco Civil Code)
 
 El arrendatario no está obligado a pagar la renta, sino desde el día en que reciba el 
 bien arrendado, salvo pacto en contrario.
 
-### Artículo 2007 (CC Jalisco)
+### Article 2007 (Jalisco Civil Code)
 
 La renta será pagada en el lugar convenido o a falta de convenio, en el lugar en que le 
 sea entregado el bien al arrendatario. La renta deberá pagarse en el tiempo convenido, y a falta de 
 éste por meses vencidos, en tratándose de inmuebles y por quincena vencida, en caso de muebles o 
 intangibles.
 
-### Artículo 2010 (CC Jalisco)
+### Article 2010 (Jalisco Civil Code)
 
 Cuando el arrendatario devuelva el bien arrendado, antes del tiempo convenido en el 
 contrato de arrendamiento, se seguirán las siguientes disposiciones: 
@@ -182,18 +182,18 @@ y
 III. Si se pactó un tiempo fijo y los períodos sólo se determinaron como plazos para hacer el pago 
 parcial de la renta, el arrendatario estará obligado a pagar la totalidad del precio.
 
-### Artículo 2019 (CC Jalisco)
+### Article 2019 (Jalisco Civil Code)
 
 El arrendatario debe hacer las reparaciones de aquéllos deterioros de poca cuantía 
 económica, que exija el uso del bien dado en arrendamiento.
 
-### Artículo 2020 (CC Jalisco)
+### Article 2020 (Jalisco Civil Code)
 
 El arrendatario que por causa de reparaciones, pierda el uso total o parcial del bien 
 arrendado, tiene derecho a no pagar el precio del arrendamiento, a pedir la reducción de ese precio o 
 a la rescisión del contrato, si la pérdida del uso dura más de un mes, en sus respectivos casos.
 
-### Artículo 2023 (CC Jalisco)
+### Article 2023 (Jalisco Civil Code)
 
 Los contratos de arrendamiento de inmuebles deben contener: 
  
@@ -227,13 +227,13 @@ en la ley.
  
 La falta de alguno de estos requisitos no invalida el contrato.
 
-### Artículo 2024 (CC Jalisco)
+### Article 2024 (Jalisco Civil Code)
 
 Cuando se ejecuten mejoras en el inmueble arrendado, por parte del arrendador o 
 que el bien sea sujeto de impuestos de plusvalía o pago de cuotas por colaboración municipal, la renta 
 podrá ser aumentada proporcionalmente a la utilidad.
 
-### Artículo 2025 (CC Jalisco)
+### Article 2025 (Jalisco Civil Code)
 
 En los arrendamientos que hayan durado más de tres años, el arrendatario tiene 
 derecho a que, en igualdad de condiciones se le prefiera a otro interesado en el nuevo arrendamiento, 
@@ -244,13 +244,13 @@ I. Estar al corriente en el pago de la renta; y
 II. Si durante el término del arrendamiento no se retrasó en los pagos periódicos de la renta por dos 
 meses.
 
-### Artículo 2034 (CC Jalisco)
+### Article 2034 (Jalisco Civil Code)
 
 Todos los arrendamientos, sea de predios rústicos o urbanos que no se hayan 
 celebrado por tiempo expresamente determinado, se entenderán por tiempo indefinido y las 
 obligaciones de las partes continuarán hasta que no se dé por terminada la relación contractual.
 
-### Artículo 2035 (CC Jalisco)
+### Article 2035 (Jalisco Civil Code)
 
 En los casos de contrato por tiempo indefinido, el arrendamiento concluirá a voluntad 
 de cualesquiera de los contratantes, previo aviso dado a la otra parte en forma indubitable. Tratándose 
@@ -261,18 +261,18 @@ rústico o destinado a fines agropecuarios.
  
 Lo dispuesto en este Artículo no será objeto de renuncia.
 
-### Artículo 2036 (CC Jalisco)
+### Article 2036 (Jalisco Civil Code)
 
 No podrá darse en arrendamiento una finca urbana que no reúna las condiciones de 
 higiene y salubridad exigidas por la legislación respectiva.
 
-### Artículo 2038 (CC Jalisco)
+### Article 2038 (Jalisco Civil Code)
 
 Se considera arrendamiento de inmuebles destinados a habitación, el que se haga de 
 cualquier finca urbana o rústica, siempre que se celebre con el objeto primordial de servir de 
 habitación a una o más personas.
 
-### Artículo 2039 (CC Jalisco)
+### Article 2039 (Jalisco Civil Code)
 
 El arrendamiento por tiempo determinado de inmuebles destinados a habitación, no 
 podrá exceder de 15 años. 
@@ -280,7 +280,7 @@ podrá exceder de 15 años.
 Cuando este tipo de arrendamiento exceda de cinco años, deberá ser inscrito en el Registro Público 
 de la Propiedad.
 
-### Artículo 2041 (CC Jalisco)
+### Article 2041 (Jalisco Civil Code)
 
 Cuando el valor comercial del inmueble sea el equivalente hasta diez mil veces el 
 valor diario de la Unidad de Medida y Actualización se seguirán las siguientes reglas: 
@@ -306,19 +306,19 @@ c) El arrendatario podrá dar por concluido el contrato en cualquier tiempo, con
 del pago de las rentas de cubrirlas hasta la fecha en que desocupe totalmente el inmueble y lo ponga 
 a disposición del arrendador.
 
-### Artículo 2042 (CC Jalisco)
+### Article 2042 (Jalisco Civil Code)
 
 Las disposiciones contenidas en el artículo anterior son de orden público. Por lo tanto, 
 son irrenunciables y en consecuencia, cualquiera estipulación en contrario se tendrá por no puesta.
 
-### Artículo 2043 (CC Jalisco)
+### Article 2043 (Jalisco Civil Code)
 
 En el caso a que se refiere el Artículo 2041, cuando se celebren convenios que 
 generen obligaciones más gravosas para el arrendatario, éstos serán nulos de pleno derecho, no 
 importando si se hacen constar bajo la forma de recibos, vales, cartas o cualquier otro documento, sin 
 perjuicio de la responsabilidad penal en que se incurra.
 
-### Artículo 2044 (CC Jalisco)
+### Article 2044 (Jalisco Civil Code)
 
 Al término del arrendamiento, el arrendatario que haya cumplido en tiempo con todas 
 las obligaciones que la ley y el contrato le hayan impuesto, tendrá derecho a una prórroga del mismo 
@@ -328,37 +328,37 @@ Sección Tercera
 Del arrendamiento de inmuebles destinados 
 al comercio e industria
 
-### Artículo 2045 (CC Jalisco)
+### Article 2045 (Jalisco Civil Code)
 
 El arrendamiento por tiempo determinado de bienes inmuebles destinados al 
 comercio, no puede exceder de veinte años; el destinado a la industria, no puede exceder de 
 veinticinco años. En ambos casos cuando excedan de ocho años deberá inscribirse en el Registro 
 Público de la Propiedad.
 
-### Artículo 2046 (CC Jalisco)
+### Article 2046 (Jalisco Civil Code)
 
 El precio del arrendamiento de los inmuebles destinados al comercio o la industria, 
 que deberá pagar periódicamente el arrendatario al arrendador, será fijado libremente por las partes.
 
-### Artículo 2136 (CC Jalisco)
+### Article 2136 (Jalisco Civil Code)
 
 Hay subarriendo, cuando el arrendatario arrienda el mismo bien que él recibió en 
 arrendamiento.
 
-### Artículo 2137 (CC Jalisco)
+### Article 2137 (Jalisco Civil Code)
 
 El arrendatario no debe subarrendar el bien arrendado en todo, ni en parte, ni ceder 
 sus derechos sin el consentimiento del arrendador; si lo hiciere, responderá solidariamente con el 
 subarrendatario de todos los daños y perjuicios ocasionados al arrendador, además de ser causa de 
 rescisión anticipada del contrato de arrendamiento.
 
-### Artículo 2138 (CC Jalisco)
+### Article 2138 (Jalisco Civil Code)
 
 Si el subarriendo se hiciere en virtud de la autorización general concedida en el 
 contrato, el arrendatario será responsable ante el arrendador, como si él mismo continuara en el uso o 
 goce del bien.
 
-### Artículo 2140 (CC Jalisco)
+### Article 2140 (Jalisco Civil Code)
 
 El arrendamiento puede terminar: 
  
@@ -379,19 +379,19 @@ VII. Por expropiación del bien arrendado hecha por causa de utilidad pública; 
  
 VIII. Por evicción del bien dado en arrendamiento.
 
-### Artículo 2141 (CC Jalisco)
+### Article 2141 (Jalisco Civil Code)
 
 Si el arrendamiento se ha hecho por tiempo determinado, concluye en el día prefijado. 
 Si no se ha señalado tiempo, se atenderá a las disposiciones del capítulo I de este título.
 
-### Artículo 2142 (CC Jalisco)
+### Article 2142 (Jalisco Civil Code)
 
 Cuando a la falta de pago del importe de la renta por dos o más meses consecutivos 
 tratándose de inmuebles y de dos quincenas para los muebles, se aúne el abandono del bien, previa 
 certificación de la autoridad judicial, se entregará el mismo al arrendador, cesando en ese momento la 
 obligación de seguir pagando rentas, dándose por concluido el contrato.
 
-### Artículo 2143 (CC Jalisco)
+### Article 2143 (Jalisco Civil Code)
 
 Si después de terminado el plazo por el que se celebró el arrendamiento o su prórroga, 
 el arrendatario continúa sin oposición en el uso y goce del bien arrendado, continuará el 
@@ -409,7 +409,7 @@ meses de anticipación para ambas partes, si el predio es rústico o destinado a
 Las obligaciones contraídas por un tercero con objeto de garantizar el cumplimiento del 
 arrendamiento, cesan al término del plazo determinado, salvo convenio en contrario.
 
-### Artículo 2144 (CC Jalisco)
+### Article 2144 (Jalisco Civil Code)
 
 El arrendador puede exigir la rescisión del contrato de arrendamiento: 
  
@@ -428,7 +428,7 @@ V. Por variar la forma del bien arrendado, sin contar con el consentimiento expr
 VI. Por la falta de pago de servicios públicos por más de dos meses o el tiempo que acuerden las 
 partes, cuando se haya comprometido a realizarlo el arrendatario.
 
-### Artículo 2145 (CC Jalisco)
+### Article 2145 (Jalisco Civil Code)
 
 El arrendatario tendrá derecho a exigir la rescisión del contrato de arrendamiento: 
  
@@ -447,7 +447,7 @@ arrendamiento; y
 V. Por la falta de pago de servicios públicos por más de dos meses o el tiempo que acuerden las 
 partes, cuando se haya comprometido a realizarlo el arrendador.
 
-### Artículo 2146 (CC Jalisco)
+### Article 2146 (Jalisco Civil Code)
 
 Si el bien dado en arrendamiento fuere enajenado por venta de autoridad, el contrato 
 de arrendamiento subsistirá, a menos que aparezca que se celebró dentro de los 60 días anteriores al 
@@ -459,12 +459,12 @@ Del comodato
 
 ---
 
-## 2. Código Civil Federal
+## 2. Federal Civil Code
 
-**Aplicación:** conflicto de leyes (art. 13) y referencia supletoria / comparativa en arrendamiento.
-**Fuente local:** `codigo-civil-federal.pdf`
+**Application:** conflict of laws (Art. 13) and supplementary / comparative reference for leases.
+**Local source:** `codigo-civil-federal.pdf`
 
-### Artículo 13 (CCF)
+### Article 13 (Federal Civil Code)
 
 La determinación del derecho aplicable se hará conforme a las siguientes reglas: 
  
@@ -491,7 +491,7 @@ regirán por el derecho del lugar en donde deban ejecutarse, a menos de que las 
 hubieran designado válidamente la aplicabilidad de otro derecho. 
 Artículo reformado DOF 07-01-1988
 
-### Artículo 2398 (CCF)
+### Article 2398 (Federal Civil Code)
 
 Hay arrendamiento cuando las dos partes contratantes se obligan recíprocamente, 
 una, a conceder el uso o goce temporal de una cosa, y la otra, a pagar por ese uso o goce un precio 
@@ -501,28 +501,28 @@ El arrendamiento no puede exceder de diez años para las fincas destinadas a hab
 años para las fincas destinadas al comercio o a la industria. 
 Párrafo reformado DOF 21-07-1993
 
-### Artículo 2399 (CCF)
+### Article 2399 (Federal Civil Code)
 
 La renta o precio del arrendamiento puede consistir en una suma de dinero o en 
 cualquiera otra cosa equivalente, con tal que sea cierta y determinada.
 
-### Artículo 2400 (CCF)
+### Article 2400 (Federal Civil Code)
 
 Son susceptibles de arrendamiento todos los bienes que pueden usarse sin 
 consumirse; excepto aquellos que la ley prohíbe arrendar y los derechos estrictamente personales.
 
-### Artículo 2401 (CCF)
+### Article 2401 (Federal Civil Code)
 
 El que no fuere dueño de la cosa podrá arrendarla si tiene facultad para celebrar ese 
 contrato, ya en virtud de autorización del dueño, ya por disposición de la ley.
 
-### Artículo 2406 (CCF)
+### Article 2406 (Federal Civil Code)
 
 El contrato de arrendamiento debe otorgarse por escrito. La falta de esta formalidad 
 se imputará al arrendador. 
 Artículo reformado DOF 21-07-1993
 
-### Artículo 2412 (CCF)
+### Article 2412 (Federal Civil Code)
 
 El arrendador está obligado, aunque no haya pacto expreso: 
  
@@ -559,7 +559,7 @@ V.
 A responder de los daños y perjuicios que sufra el arrendatario por los defectos o vicios ocultos 
 de la cosa, anteriores al arrendamiento.
 
-### Artículo 2425 (CCF)
+### Article 2425 (Federal Civil Code)
 
 El arrendatario está obligado: 
  
@@ -570,30 +570,30 @@ familiares, sirvientes o subarrendatarios;
  
 III. A servirse de la cosa solamente para el uso convenido o conforme a la naturaleza y destino de ella.
 
-### Artículo 2448 (CCF)
+### Article 2448 (Federal Civil Code)
 
 Las disposiciones contenidas en los artículos 2448-A, 2448-B, 2448-G y 2448-H son 
 de orden público e interés social, por tanto son irrenunciables y en consecuencia cualquier estipulación 
 en contrario se tendrá por no puesta. 
 Artículo reformado DOF 07-02-1985, 21-07-1993
 
-### Artículo 2449 (CCF)
+### Article 2449 (Federal Civil Code)
 
 (Se deroga). 
 Artículo derogado DOF 21-07-1993
 
-### Artículo 2450 (CCF)
+### Article 2450 (Federal Civil Code)
 
 (Se deroga). 
 Artículo derogado DOF 21-07-1993
 
-### Artículo 2480 (CCF)
+### Article 2480 (Federal Civil Code)
 
 El arrendatario no puede subarrendar la cosa arrendada en todo, ni en parte, ni ceder 
 sus derechos sin consentimiento del arrendador; si lo hiciere, responderá solidariamente con el 
 subarrendatario, de los daños y perjuicios.
 
-### Artículo 2481 (CCF)
+### Article 2481 (Federal Civil Code)
 
 Si el subarriendo se hiciere en virtud de la autorización general concedida en el 
 contrato, el arrendatario será responsable al arrendador, como si él mismo continuara en el uso o goce de 
@@ -610,7 +610,7 @@ Secretaría de Servicios Parlamentarios
  
 238 de 370
 
-### Artículo 2483 (CCF)
+### Article 2483 (Federal Civil Code)
 
 El arrendamiento puede determinar: 
  
@@ -638,19 +638,19 @@ VII. Por expropiación de la cosa arrendada hecha por causa de utilidad pública
  
 VIII. Por evicción de la cosa dada en arrendamiento.
 
-### Artículo 2484 (CCF)
+### Article 2484 (Federal Civil Code)
 
 Si el arrendamiento se ha hecho por tiempo determinado, concluye en el día prefijado. 
 Si no se ha señalado tiempo, se observará lo que disponen los artículos 2478 y 2479. 
 Fe de erratas al artículo DOF 21-12-1928. Suspensión provisional de vigencia (por estado de guerra) DOF 11-11-1943, 09-06-1944. 
 Reformado DOF 21-07-1993
 
-### Artículo 2485 (CCF)
+### Article 2485 (Federal Civil Code)
 
 (Se deroga). 
 Artículo derogado DOF 21-07-1993
 
-### Artículo 2490 (CCF)
+### Article 2490 (Federal Civil Code)
 
 El arrendatario puede exigir la rescisión del contrato: 
  
@@ -667,7 +667,7 @@ Por la existencia de defectos o vicios ocultos de la cosa, anteriores al arrenda
 desconocidos por el arrendatario. 
 Artículo reformado DOF 21-07-1993
 
-### Artículo 2496 (CCF)
+### Article 2496 (Federal Civil Code)
 
 En los casos de expropiación y de ejecución judicial, se observará lo dispuesto en los 
 artículos 2456, 2457 y 2458. 
@@ -677,12 +677,12 @@ Del Comodato
 
 ---
 
-## 3. Código de Procedimientos Civiles del Estado de Jalisco
+## 3. Code of Civil Procedure of the State of Jalisco
 
-**Aplicación:** desocupación del inmueble arrendado (vía sumaria).
-**Fuente local:** `codigo-procedimientos-civiles-jalisco.pdf`
+**Application:** vacation of leased real property (summary proceeding).
+**Local source:** `codigo-procedimientos-civiles-jalisco.pdf`
 
-### Artículo 683 (CPC Jalisco)
+### Article 683 (Jalisco Code of Civil Procedure)
 
 El juicio sumario por desocupación procede, cuando se funda: 
  
@@ -699,14 +699,14 @@ IV. En caso de muerte del usufructuario; y
 V. En caso de muerte del comodatario o cuando así lo solicite el comodante si no está determinado el 
 uso o plazo del préstamo.
 
-### Artículo 684 (CPC Jalisco)
+### Article 684 (Jalisco Code of Civil Procedure)
 
 Para que surta efectos de oposición del arrendador a la continuación de la ocupación 
 del inmueble por el arrendatario, la demanda en que se ejercite la acción de terminación de contrato 
 por tiempo definido deberá presentarse dentro de los treinta días naturales siguientes al vencimiento 
 del mismo.
 
-### Artículo 685 (CPC Jalisco)
+### Article 685 (Jalisco Code of Civil Procedure)
 
 Recibida la demanda en la que se reclame el pago de rentas vencidas con los 
 documentos que justifiquen la celebración del arrendamiento, si lo pide el actor, el juez dictará auto 
@@ -735,7 +735,7 @@ respectivo, o éste se hubiere perdido, previamente se justificará la existenci
 quiera de los medios de prueba que autoriza este Código, el juez procederá como se previene en 
 los párrafos anteriores.
 
-### Artículo 686 (CPC Jalisco)
+### Article 686 (Jalisco Code of Civil Procedure)
 
 En el caso previsto por la fracción III del artículo 683, si en el acto de la diligencia el 
 arrendatario hace entrega del valor de las pensiones reclamadas o justifica con los documentos 
@@ -757,7 +757,7 @@ al arrendatario la condenación en costas, a menos que juntamente con la rescisi
 hubiere demandado la desocupación del inmueble por otra diversa casual, en cuyo caso continuará el 
 procedimiento.
 
-### Artículo 687 (CPC Jalisco)
+### Article 687 (Jalisco Code of Civil Procedure)
 
 En cualquier estado del juicio, procede dictar resolución decretando la desocupación 
 del inmueble cuando: 
@@ -778,13 +778,13 @@ Exclusivamente en los casos previstos en este artículo el juez deberá otorgar 
 gracia de treinta días naturales para que desocupe voluntariamente el inmueble, y aunque no se haga 
 esta declaración, se entenderá sujeto al término expresado.
 
-### Artículo 688 (CPC Jalisco)
+### Article 688 (Jalisco Code of Civil Procedure)
 
 La sentencia que declare procedente la acción de desocupación, dispondrá siempre 
 el lanzamiento con un plazo de gracia de quince días naturales improrrogables para la 
 desocupación y entrega del inmueble.
 
-### Artículo 689 (CPC Jalisco)
+### Article 689 (Jalisco Code of Civil Procedure)
 
 La diligencia de lanzamiento se entenderá con el ejecutado o en su defecto con 
 cualquier persona de su familia, doméstico, portero, vecino o agente de policía, pudiéndose emplear 
@@ -801,22 +801,22 @@ efectuarse, no se hallaren en el acto el jefe de la familia o persona que haga s
 hubiere niños, niñas, adolecentes o personas con discapacidad que su traslado requiera un trato 
 médico especial que imposibilite su salida.
 
-### Artículo 690 (CPC Jalisco)
+### Article 690 (Jalisco Code of Civil Procedure)
 
 Si el actor lo pide, al ejecutarse el lanzamiento se embargarán y depositarán bienes 
 bastantes para cubrir las pensiones y las costas reclamadas.
 
-### Artículo 691 (CPC Jalisco)
+### Article 691 (Jalisco Code of Civil Procedure)
 
 En los juicios sobre desocupación, se entiende domicilio legal la finca o departamento 
 de cuya desocupación se trate, salvo pacto en contrario.
 
-### Artículo 692 (CPC Jalisco)
+### Article 692 (Jalisco Code of Civil Procedure)
 
 Serán aplicables las disposiciones de este capítulo a los juicios relativos al comodato, 
 depósito, aparcería, transportes, y hospedaje en todo aquello que no sea contrario a su naturaleza.
 
-### Artículo 692 Bis (CPC Jalisco)
+### Article 692 Bis (Jalisco Code of Civil Procedure)
 
 Cuando durante el juicio, antes de que se dicte sentencia, se informe que el bien 
 inmueble materia de la litis fue abandonado por el inquilino, el Juez o Tribunal que conozca de los 
@@ -857,8 +857,8 @@ De los Juicios sobre Alimentos
 
 ---
 
-## Uso en el pipeline CAG
+## Use in the CAG pipeline
 
-1. Cargar este archivo completo (o por sección) como prefijo de sistema / KV cache.
-2. Al citar, usar `instrument` + número de artículo y validar contra PDF oficial si hubo reforma.
-3. Priorizar **CC Jalisco** cuando el contrato indique Jalisco o el inmueble esté en la entidad.
+1. Load this entire file (or by section) as a system prefix / KV cache.
+2. When citing, use `instrument` + article number and validate against the official PDF if there was a reform.
+3. Prioritize **Jalisco Civil Code** when the contract specifies Jalisco or the property is in the state.

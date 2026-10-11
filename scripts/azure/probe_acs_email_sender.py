@@ -20,17 +20,17 @@ def main() -> int:
     try:
         sender.send_html(
             to_email=to_email,
-            subject="Legal Rent AI — prueba ACS",
-            html_body="<p>Correo de prueba desde Legal Rent AI.</p>",
-            plain_text="Correo de prueba desde Legal Rent AI.",
+            subject="Legal Rent AI — ACS test",
+            html_body="<p>Test email from Legal Rent AI.</p>",
+            plain_text="Test email from Legal Rent AI.",
         )
     except Exception as exc:
         from notification.acs_errors import format_acs_send_error
 
         print(f"ERROR: {format_acs_send_error(exc)}")
-        print("\nGuía: docs/deployment/fix-domain-not-linked.md")
+        print("\nGuide: docs/deployment/fix-domain-not-linked.md")
         return 1
-    print(f"OK: mensaje enviado hacia {to_email}")
+    print(f"OK: message sent to {to_email}")
     return 0
 
 

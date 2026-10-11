@@ -1,42 +1,42 @@
-# Sistema de Autenticación - RF-01
+# Authentication System — RF-01
 
-## Descripción
+## Description
 
-Este módulo implementa la funcionalidad de autenticación de usuarios para el sistema de análisis de contratos, conforme al requerimiento **RF-01** del documento de especificaciones.
+This module implements user authentication for the contract analysis system, in accordance with requirement **RF-01** in the specifications document.
 
-### Características Implementadas
+### Implemented Features
 
-- ✅ Gestión de usuarios con roles **Abogado** y **Cliente** (`lawyer`, `client`)
-- ✅ Hash seguro de contraseñas con PBKDF2-HMAC-SHA256
-- ✅ Generación y validación de tokens JWT con expiración
-- ✅ API REST para login/logout/registro
-- ✅ Middleware de autorización por roles
-- ✅ Persistencia en SQL Server (`LegalRentAI`, tablas `app.users` / `app.roles`)
+- ✅ User management with **Lawyer** and **Client** roles (`lawyer`, `client`)
+- ✅ Secure password hashing with PBKDF2-HMAC-SHA256
+- ✅ JWT token generation and validation with expiration
+- ✅ REST API for login/logout/registration
+- ✅ Role-based authorization middleware
+- ✅ Persistence in SQL Server (`LegalRentAI`, tables `app.users` / `app.roles`)
 
-## Estructura del módulo
+## Module structure
 
-Código en **`backend/auth/`**. Middleware JWT en **`backend/api/middleware/auth.py`**.
+Code in **`backend/auth/`**. JWT middleware in **`backend/api/middleware/auth.py`**.
 
 ```
 backend/auth/
 ├── models.py        # UserCredentials, Token, PasswordHash
 ├── token.py         # JWT encode/decode
-├── service.py       # Login y registro
+├── service.py       # Login and registration
 └── ...
 ```
 
-## Uso Básico
+## Basic usage
 
-### 1. Login de Usuario
+### 1. User login
 
 ```python
 from auth.models import UserCredentials
 from auth.service import AuthService
 
-# Crear servicio
+# Create service
 auth_service = AuthService()
 
-# Intentar login
+# Attempt login
 credentials = UserCredentials(email="code.zemoreno@gmail.com", password="cliente123")
 result = auth_service.login(credentials)
 
@@ -46,7 +46,7 @@ else:
     print(f"Error: {result.message}")
 ```
 
-### 2. Registro de Nuevo Usuario
+### 2. Register new user
 
 ```python
 from domain.entities import Role
@@ -59,47 +59,47 @@ result = auth_service.register(
 )
 
 if result.success:
-    print(f"Usuario registrado con token: {result.token.access_token}")
+    print(f"User registered with token: {result.token.access_token}")
 ```
 
-### 3. Validación de Token JWT
+### 3. JWT token validation
 
 ```python
 from auth.token import JWTTransformer
 from datetime import datetime
 
-# Crear transformer
+# Create transformer
 transformer = JWTTransformer(secret_key="tu-secret-key")
 
-# Decodificar token
+# Decode token
 payload = transformer.decode(token_string)
 
 if payload is None:
-    # Token inválido o expirado
+    # Invalid or expired token
     pass
 else:
-    # Token válido, usar payload.user_id, payload.email, payload.role
-    print(f"Usuario: {payload.email}")
+    # Valid token; use payload.user_id, payload.email, payload.role
+    print(f"User: {payload.email}")
 ```
 
-### 4. Hash de Contraseñas
+### 4. Password hashing
 
 ```python
 from auth.models import PasswordHash
 
-# Generar hash
+# Generate hash
 password = "mi-contraseña-segura"
 hash_result = PasswordHash.generate(password)
 print(f"Salt: {hash_result.salt}")
 print(f"Hash: {hash_result.hashed_password}")
 
-# Verificar contraseña
+# Verify password
 is_valid = hash_result.verify(password)  # True
 ```
 
-## API Endpoints
+## API endpoints
 
-Detalle completo en [api.md](./api.md). Ver [Resumen de endpoints implementados](./api.md#resumen-de-endpoints-implementados).
+Full detail in [api.md](./api.md). See [Summary of implemented endpoints](./api.md#summary-of-implemented-endpoints).
 
 ### POST /auth/login
 
@@ -141,7 +141,7 @@ Content-Type: application/json
 }
 
 Response (200 OK):
-{ ... mismo formato que login ... }
+{ ... same format as login ... }
 
 Response (400 Bad Request):
 {
@@ -166,7 +166,7 @@ Response (401 Unauthorized):
 }
 ```
 
-### Uso de Middleware de Autorización
+### Using authorization middleware
 
 ```python
 from fastapi import Depends
@@ -174,34 +174,34 @@ from api.middleware.auth import require_lawyer
 
 @app.get("/lawyer-only")
 def lawyer_area(current_user = Depends(require_lawyer)):
-    return {"message": f"Hola {current_user['email']}"}
+    return {"message": f"Hello {current_user['email']}"}
 ```
 
-## Roles de Usuario
+## User roles
 
-| Rol (valor API) | Descripción | Accesos principales |
+| Role (API value) | Description | Main access |
 |-----------------|-------------|---------------------|
-| `client` | Cliente / arrendatario | Subir contratos, analizar, chat, reportes, notificar abogado |
-| `lawyer` | Abogado | Revisar hallazgos, aprobar análisis, revisión editada, cierre (`approved→terminated`), export feedback |
+| `client` | Client / tenant | Upload contracts, analyze, chat, reports, notify lawyer |
+| `lawyer` | Lawyer | Review findings, approve analyses, edited revision, closure (`approved→terminated`), export feedback |
 
-El catálogo SQL ya no incluye `administrator` (ver [`docs/database/migrations/12-migrate-remove-administrator.sql`](./database/migrations/12-migrate-remove-administrator.sql)).
+The SQL catalog no longer includes `administrator` (see [`docs/database/migrations/12-migrate-remove-administrator.sql`](./database/migrations/12-migrate-remove-administrator.sql)).
 
-### Otros tokens firmados (mismo `SECRET_KEY`)
+### Other signed tokens (same `SECRET_KEY`)
 
-Además del JWT de sesión, el módulo `backend/auth/` incluye servicios de tokens acotados:
+Besides the session JWT, the `backend/auth/` module includes scoped token services:
 
-| Servicio | Uso |
+| Service | Usage |
 |----------|-----|
-| `signing_schedule_token.py` | Enlace público `/schedule-signing?token=` (agenda de firma post-cierre) |
-| Tokens de descarga documentos | `POST .../download-token` + `GET .../download?token=` (TTL `DOWNLOAD_TOKEN_TTL_SECONDS`) |
+| `signing_schedule_token.py` | Public link `/schedule-signing?token=` (signing schedule after closure) |
+| Document download tokens | `POST .../download-token` + `GET .../download?token=` (TTL `DOWNLOAD_TOKEN_TTL_SECONDS`) |
 
-No comparten el flujo login/logout; se validan en rutas específicas.
+They do not share the login/logout flow; they are validated on specific routes.
 
-## Configuración
+## Configuration
 
-### Variables de Entorno
+### Environment variables
 
-Copia `.env.example` a `.env` y ajusta según tu entorno:
+Copy `.env.example` to `.env` and adjust for your environment:
 
 ```bash
 # JWT
@@ -215,27 +215,27 @@ DB_DRIVER=ODBC Driver 17 for SQL Server
 DB_TRUSTED_CONNECTION=true
 ```
 
-La base de datos debe existir y tener el esquema aplicado (`setup_database.bat` o scripts en `docs/database/`).
+The database must exist with schema applied (`setup_database.bat` or scripts in `docs/database/`).
 
-Usuarios demo en BD: ver [database/setup-ssms.md](./database/setup-ssms.md).
+Demo users in DB: see [database/setup-ssms.md](./database/setup-ssms.md).
 
-### Generar Clave Secreta
+### Generate secret key
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
-## Pruebas
+## Tests
 
-Ejecutar el script de pruebas:
+Run the test script:
 
 ```bash
 pytest tests/integration/test_auth.py
-# o smoke rápido:
+# or quick smoke:
 python tests/smoke/auth_quick.py
 ```
 
-Salida esperada:
+Expected output:
 ```
 ============================================================
 Legal Rent AI - Authentication Tests
@@ -261,65 +261,65 @@ ALL TESTS PASSED
 ============================================================
 ```
 
-## Seguridad
+## Security
 
-### Implementation Details
+### Implementation details
 
-1. **Hashing de Contraseñas**: Se usa `PBKDF2-HMAC-SHA256` con:
-   - Salt aleatorio (16 bytes hex)
-   - 100,000 iteraciones
-   - Comparación constante para prevenir timing attacks
+1. **Password hashing**: Uses `PBKDF2-HMAC-SHA256` with:
+   - Random salt (16 bytes hex)
+   - 100,000 iterations
+   - Constant-time comparison to prevent timing attacks
 
-2. **Tokens JWT**:
-   - Expiración configurable
-   - Firma HMAC-SHA256
-   - Validación de expiración y integridad
+2. **JWT tokens**:
+   - Configurable expiration
+   - HMAC-SHA256 signature
+   - Expiration and integrity validation
 
-3. **Middleware deRoles**: Verificación de roles en cada request protegido
+3. **Role middleware**: Role verification on each protected request
 
-### Recomendaciones para Producción
+### Production recommendations
 
-- ✅ Usar variables de entorno para `SECRET_KEY`
-- ✅ Implementar rate limiting en endpoints de autenticación
-- ✅ Agregar logging de intentos de login fallidos
-- ✅ Implementar "account lockout" después de N intentos fallidos
-- ✅ Considerar 2FA/MFA para producción
-- ✅ Usar HTTPS obligatoriamente
+- ✅ Use environment variables for `SECRET_KEY`
+- ✅ Implement rate limiting on authentication endpoints
+- ✅ Add logging of failed login attempts
+- ✅ Implement account lockout after N failed attempts
+- ✅ Consider 2FA/MFA for production
+- ✅ Require HTTPS
 
-## Requerimientos Cumplidos
+## Requirements fulfilled
 
-| ID | Requerimiento | Estado |
+| ID | Requirement | Status |
 |----|---------------|--------|
-| RF-01 | El sistema deberá permitir autenticación de usuarios | ✅ Implementado |
-| RF-02 | Roles Abogado y Cliente en MVP (`lawyer`, `client`; sin administrador en catálogo SQL) | ✅ Implementado |
+| RF-01 | The system shall allow user authentication | ✅ Implemented |
+| RF-02 | Lawyer and Client roles in MVP (`lawyer`, `client`; no administrator in SQL catalog) | ✅ Implemented |
 
-Ver [contracts.md](./contracts.md) para RF-03, RF-04 y RF-05.
+See [contracts.md](./contracts.md) for RF-03, RF-04, and RF-05.
 
-## Notas Técnicas
+## Technical notes
 
-### Referencias Circulares Resolver
+### Resolving circular references
 
-El módulo `auth/models.py` importa `Role` desde `domain.entities`, pero `AuthUser.to_user()` debe importar `User`. Esto se resuelve importando localmente dentro del método.
+The `auth/models.py` module imports `Role` from `domain.entities`, but `AuthUser.to_user()` must import `User`. This is resolved by importing locally inside the method.
 
-### Librerías Utilizadas
+### Libraries used
 
-- **PyJWT**: Generación y validación de tokens JWT
-- **pyodbc**: Acceso a SQL Server
-- **pydantic-settings**: Configuración desde variables de entorno
-- **Python Standard Library** (`hashlib`, `secrets`): Hashing seguro de contraseñas
+- **PyJWT**: JWT token generation and validation
+- **pyodbc**: SQL Server access
+- **pydantic-settings**: Configuration from environment variables
+- **Python Standard Library** (`hashlib`, `secrets`): Secure password hashing
 
-### Capa de datos
+### Data layer
 
-| Módulo | Responsabilidad |
+| Module | Responsibility |
 |--------|-----------------|
-| `config/settings.py` | Conexión y secretos |
-| `data/database.py` | Context manager pyodbc |
-| `data/repositories/user_repository.py` | CRUD de `app.users` |
-| `auth/service.py` | Login/register usando el repositorio |
+| `config/settings.py` | Connection and secrets |
+| `data/database.py` | pyodbc context manager |
+| `data/repositories/user_repository.py` | CRUD for `app.users` |
+| `auth/service.py` | Login/register using the repository |
 
-## Próximos Pasos
+## Next steps
 
 1. [ ] Refresh tokens
-2. [ ] Endpoints de gestión de usuarios (admin)
-3. [ ] Recuperación de contraseña
-4. [ ] Rate limiting y account lockout
+2. [ ] User management endpoints (admin)
+3. [ ] Password recovery
+4. [ ] Rate limiting and account lockout

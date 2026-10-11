@@ -1,19 +1,19 @@
-# IA, agentes y capa de abstracción (LiteLLM)
+# AI, agents, and abstraction layer (LiteLLM)
 
-Diagrama de alto nivel de cómo el MVP usa modelos de lenguaje, el facade **`AIRuntime`** y la capa **`llm/litellm_runtime`** (abstracción multi-proveedor alineada con RF-65/RF-66, RNF-30).
+High-level diagram of how the MVP uses language models, the **`AIRuntime`** facade, and the **`llm/litellm_runtime`** layer (multi-provider abstraction aligned with RF-65/RF-66, RNF-30).
 
-Código de entrada para servicios: [`backend/ai/runtime.py`](../../backend/ai/runtime.py).
+Service entry code: [`backend/ai/runtime.py`](../../backend/ai/runtime.py).
 
-## Diagrama de alto nivel
+## High-level diagram
 
-> **Cómo ver el diagrama:** imagen PNG (abajo), **ASCII** o bloque *Mermaid* (GitHub / VS Code / [mermaid.live](https://mermaid.live)).
+> **How to view the diagram:** PNG image (below), **ASCII**, or *Mermaid* block (GitHub / VS Code / [mermaid.live](https://mermaid.live)).
 
-![IA, AIRuntime y capa LiteLLM](./ai-runtime-and-litellm.png)
+![AI, AIRuntime, and LiteLLM layer](./ai-runtime-and-litellm.png)
 
-### Vista ASCII (siempre visible)
+### ASCII view (always visible)
 
 ```
-  SPA (Dashboard, Chat SSE)          /schedule-signing (público)
+  SPA (Dashboard, Chat SSE)          /schedule-signing (public)
            │                                    │
            ▼                                    ▼
   ┌────────────────────────────────────────────────────────────┐
@@ -21,7 +21,7 @@ Código de entrada para servicios: [`backend/ai/runtime.py`](../../backend/ai/ru
   └───────────────────────────┬────────────────────────────────┘
                               ▼
                     ┌─────────────────┐
-                    │   AIRuntime     │  ◄── guardrails (dominio, inyección)
+                    │   AIRuntime     │  ◄── guardrails (domain, injection)
                     └────────┬────────┘
          ┌───────────────────┼───────────────────┐
          ▼                   ▼                   ▼
@@ -32,22 +32,22 @@ Código de entrada para servicios: [`backend/ai/runtime.py`](../../backend/ai/ru
          │                   │                   │
          ▼                   ▼                   │
   GuardedLLMProvider   litellm_runtime ────────┼──► OpenAI / Anthropic / Azure
-  (openai · anthropic · heuristic · azure · local)     (LangChain en agente)
+  (openai · anthropic · heuristic · azure · local)     (LangChain in agent)
          │                   │
          ▼                   ▼
-  + CAG corpus (cag-corpus-v1.md) inyectado en prompts
+  + CAG corpus (cag-corpus-v1.md) injected in prompts
          │
          ▼
   SQL Server  ·  storage/llm-runs  ·  ACS Email / SMTP
 ```
 
-### Vista Mermaid (renderizada en GitHub / VS Code)
+### Mermaid view (rendered on GitHub / VS Code)
 
 ```mermaid
 flowchart TB
-    subgraph clients ["Clientes"]
+    subgraph clients ["Clients"]
         spa["SPA React<br/>Dashboard · Chat SSE"]
-        public["/schedule-signing<br/>token público"]
+        public["/schedule-signing<br/>public token"]
     end
 
     subgraph api ["API FastAPI (services/)"]
@@ -56,11 +56,11 @@ flowchart TB
         signing_svc["SigningCoordinationService"]
     end
 
-    subgraph ai_facade ["Fachada AIRuntime"]
+    subgraph ai_facade ["AIRuntime facade"]
         runtime["AIRuntime"]
     end
 
-    subgraph llm_layer ["Capa LLM (backend/llm/)"]
+    subgraph llm_layer ["LLM layer (backend/llm/)"]
         registry["get_llm_provider()<br/>registry: heuristic · openai · anthropic · azure · local"]
         guarded["GuardedLLMProvider<br/>(guardrails_enabled)"]
         litellm_rt["litellm_runtime<br/>litellm_completion · stream<br/>OpenAI / Anthropic SDK"]
@@ -69,25 +69,25 @@ flowchart TB
         chat_llm["ContractChatLLM"]
     end
 
-    subgraph agent_layer ["Agente LangGraph"]
+    subgraph agent_layer ["LangGraph agent"]
         react["create_react_agent<br/>signing_coordination/runner"]
-        tools["Tools: comparación · slots · email HTML"]
+        tools["Tools: comparison · slots · email HTML"]
         lc_model["ChatOpenAI / ChatAnthropic<br/>(LangChain)"]
     end
 
-    subgraph grounding ["Grounding y seguridad"]
+    subgraph grounding ["Grounding and security"]
         cag["rag/cag_corpus.py<br/>cag-corpus-v1.md"]
-        gw["guardrails/<br/>dominio · inyección · chat scope"]
+        gw["guardrails/<br/>domain · injection · chat scope"]
     end
 
-    subgraph external ["Proveedores externos"]
+    subgraph external ["External providers"]
         oai["OpenAI API"]
         ant["Anthropic API"]
         azo["Azure OpenAI"]
         local["Ollama / local LLM"]
     end
 
-    subgraph data ["Persistencia"]
+    subgraph data ["Persistence"]
         sql[("SQL Server")]
         storage[("storage/llm-runs · reports")]
     end
@@ -136,21 +136,21 @@ flowchart TB
     analysis_svc --> storage
 ```
 
-## Responsabilidades por capa
+## Responsibilities by layer
 
-| Capa | Módulos | Rol |
+| Layer | Modules | Role |
 | ---- | ------- | --- |
-| **Servicios** | `services/analysis_service.py`, `chat_service.py`, `signing_coordination_service.py` | Orquestación HTTP, BD, colas async; **no** llaman proveedores LLM directamente |
-| **AIRuntime** | `ai/runtime.py` | Punto único: análisis, chat (sync/stream), validación de chat, agente de firma |
-| **Registro LLM** | `llm/registry.py` | Factory por `LLM_PROVIDER`; opcional envoltorio `GuardedLLMProvider` |
-| **LiteLLM (abstracción del repo)** | `llm/litellm_runtime.py`, `llm/litellm_provider.py` | API unificada `litellm_completion` / stream; enrutamiento OpenAI vs Anthropic; resolución de modelo (`resolve_litellm_model`) |
-| **Chat** | `llm/chat_provider.py` | Prompts + CAG + JSON de respuesta; streaming SSE hacia el frontend |
-| **Agente** | `agents/signing_coordination/` | LangGraph ReAct tras cierre `approved→terminated`; herramientas deterministas + LLM vía LangChain |
-| **Evals offline** | `evals/` | Proveedor/juez separados (`eval_judge_*`); no pasa por AIRuntime en tráfico HTTP |
+| **Services** | `services/analysis_service.py`, `chat_service.py`, `signing_coordination_service.py` | HTTP, DB, async queue orchestration; **do not** call LLM providers directly |
+| **AIRuntime** | `ai/runtime.py` | Single entry: analysis, chat (sync/stream), chat validation, signing agent |
+| **LLM registry** | `llm/registry.py` | Factory by `LLM_PROVIDER`; optional `GuardedLLMProvider` wrapper |
+| **LiteLLM (repo abstraction)** | `llm/litellm_runtime.py`, `llm/litellm_provider.py` | Unified API `litellm_completion` / stream; OpenAI vs Anthropic routing; model resolution (`resolve_litellm_model`) |
+| **Chat** | `llm/chat_provider.py` | Prompts + CAG + response JSON; SSE streaming to frontend |
+| **Agent** | `agents/signing_coordination/` | LangGraph ReAct after `approved→terminated` closure; deterministic tools + LLM via LangChain |
+| **Offline evals** | `evals/` | Separate provider/judge (`eval_judge_*`); does not go through AIRuntime on HTTP traffic |
 
-## Flujos principales
+## Main flows
 
-### 1. Análisis contractual
+### 1. Contract analysis
 
 ```text
 POST /contracts/{id}/analyses
@@ -158,49 +158,49 @@ POST /contracts/{id}/analyses
   → AIRuntime.analyze_contract
   → get_llm_provider() → [Guarded] OpenAI | LiteLLMLLMProvider | Heuristic | Azure | Local
   → system prompt + CAG (legal_cag_enabled)
-  → persistencia: analyses, clauses, findings, analysis_llm_runs
+  → persistence: analyses, clauses, findings, analysis_llm_runs
 ```
 
-### 2. Chat contextual (SSE)
+### 2. Contextual chat (SSE)
 
 ```text
 POST /chat/sessions/{id}/messages/stream
   → ChatService
   → AIRuntime.chat_stream
   → ContractChatLLM → litellm_completion_stream
-  → observability/chat_llm_tracker (eventos en BD)
+  → observability/chat_llm_tracker (events in DB)
 ```
 
-### 3. Coordinación de firma (agente)
+### 3. Signing coordination (agent)
 
 ```text
 PATCH contract status → terminated (lawyer)
   → SigningCoordinationService
   → AIRuntime.run_signing_coordination
-  → LangGraph ReAct (o fallback determinista si LLM_PROVIDER=heuristic)
-  → tools: comparación almacenada, slots, send_signing_coordination_email
-  → enlace FRONTEND_BASE_URL/schedule-signing?token=
+  → LangGraph ReAct (or deterministic fallback if LLM_PROVIDER=heuristic)
+  → tools: stored comparison, slots, send_signing_coordination_email
+  → link FRONTEND_BASE_URL/schedule-signing?token=
 ```
 
-## Proveedores (`LLM_PROVIDER`)
+## Providers (`LLM_PROVIDER`)
 
-| Valor | Análisis | Chat | Agente de firma |
+| Value | Analysis | Chat | Signing agent |
 | ----- | -------- | ---- | ---------------- |
 | `openai` | `OpenAILLMProvider` | `litellm_runtime` → OpenAI SDK | `ChatOpenAI` |
 | `anthropic` | `LiteLLMLLMProvider` | `litellm_runtime` → Anthropic SDK | `ChatAnthropic` |
 | `azure` | `AzureOpenAILLMProvider` | — | `ChatOpenAI` (Azure) |
 | `local` | `LocalLLMProvider` | — | — |
-| `heuristic` | Reglas sin API | — | Fallback sin LLM (tools en orden fijo) |
+| `heuristic` | Rules without API | — | Fallback without LLM (tools in fixed order) |
 
-> **Nota:** el paquete Python `litellm` se usa de forma acotada (p. ej. estimación de coste en `observability/llm_cost.py`). La abstracción principal del producto es el módulo **`litellm_runtime`**, que unifica completions y streaming sobre los SDK oficiales.
+> **Note:** the Python `litellm` package is used in a limited way (e.g. cost estimation in `observability/llm_cost.py`). The product’s main abstraction is the **`litellm_runtime`** module, which unifies completions and streaming over the official SDKs.
 
-## Variables de entorno relevantes
+## Relevant environment variables
 
-Ver [`.env.example`](../../.env.example): `LLM_PROVIDER`, `OPENAI_*`, `ANTHROPIC_*`, `AZURE_OPENAI_*`, `LOCAL_LLM_*`, `LEGAL_CAG_*`, `GUARDRAILS_*`, `EVAL_JUDGE_*`.
+See [`.env.example`](../../.env.example): `LLM_PROVIDER`, `OPENAI_*`, `ANTHROPIC_*`, `AZURE_OPENAI_*`, `LOCAL_LLM_*`, `LEGAL_CAG_*`, `GUARDRAILS_*`, `EVAL_JUDGE_*`.
 
-## Referencias
+## References
 
-- [C4 — componentes](./c4-level3-components.md)
-- [api.md](../api.md) — endpoints de análisis, chat y `/public/signing-schedule`
-- [docker-architecture.md](../deployment/docker-architecture.md) — IA in-process en contenedor `api`
-- [legal-sources/README.md](../legal-sources/README.md) — corpus CAG
+- [C4 — components](./c4-level3-components.md)
+- [api.md](../api.md) — analysis, chat, and `/public/signing-schedule` endpoints
+- [docker-architecture.md](../deployment/docker-architecture.md) — in-process AI in `api` container
+- [legal-sources/README.md](../legal-sources/README.md) — CAG corpus

@@ -1,47 +1,47 @@
-# Arquitectura — Legal Rent AI
+# Architecture — Legal Rent AI
 
-Documentación **C4** (Context, Containers, Components, Code) del MVP.
+**C4** documentation (Context, Containers, Components, Code) for the MVP.
 
-**Repositorio:** monorepo con `backend/` (FastAPI) y `frontend/` (React).
+**Repository:** monorepo with `backend/` (FastAPI) and `frontend/` (React).
 
-## Niveles C4
+## C4 levels
 
-| Nivel | Documento | Contenido |
+| Level | Document | Content |
 |-------|-----------|-----------|
-| 1 | [Contexto](./c4-level1-system-context.md) | Actores, sistemas externos, alcance |
-| 2 | [Contenedores](./c4-level2-containers.md) | SPA, API, SQL Server, storage, LLM |
-| 3 | [Componentes](./c4-level3-components.md) | Módulos `backend/` y `frontend/src` |
-| 4 | [Código — Auth](./c4-level4-code-auth.md) | Clases en `backend/auth/` |
-| — | [IA, agentes y LiteLLM](./ai-runtime-and-litellm.md) | AIRuntime, registro LLM, LangGraph, CAG |
+| 1 | [Context](./c4-level1-system-context.md) | Actors, external systems, scope |
+| 2 | [Containers](./c4-level2-containers.md) | SPA, API, SQL Server, storage, LLM |
+| 3 | [Components](./c4-level3-components.md) | `backend/` and `frontend/src` modules |
+| 4 | [Code — Auth](./c4-level4-code-auth.md) | Classes in `backend/auth/` |
+| — | [AI, agents, and LiteLLM](./ai-runtime-and-litellm.md) | AIRuntime, LLM registry, LangGraph, CAG |
 
-Documentos de dominio:
+Domain documents:
 
-- [Contratos](../contracts.md) — RF-03–RF-08, cierre y revisión editada
-- [API REST](../api.md) — endpoints (incl. `/public/signing-schedule`)
-- [Base de datos](../database/README.md) — esquema `app`
-- [Despliegue](../deployment/docker.md) — Docker local y Azure LIDR
+- [Contracts](../contracts.md) — RF-03–RF-08, closure and edited revision
+- [REST API](../api.md) — endpoints (incl. `/public/signing-schedule`)
+- [Database](../database/README.md) — `app` schema
+- [Deployment](../deployment/docker.md) — local Docker and Azure LIDR
 
-## Leyenda
+## Legend
 
-| Símbolo | Significado |
+| Symbol | Meaning |
 |---------|-------------|
-| ✅ | Implementado |
-| 🚧 | Parcial |
-| 📋 | Planificado |
+| ✅ | Implemented |
+| 🚧 | Partial |
+| 📋 | Planned |
 
-## Principios
+## Principles
 
-- **Monolito modular** Python en `backend/`; un proceso Uvicorn.
-- **SPA desacoplada** en `frontend/` (`VITE_API_URL`).
-- **Dominio** en `backend/domain/`; acceso a datos en `backend/data/repositories/`.
-- **LLM** abstracto en `backend/llm/`; **guardrails** y **CAG** antes/después del proveedor.
-- **Single-tenant**, despliegue objetivo **Azure**.
+- **Modular monolith** Python in `backend/`; single Uvicorn process.
+- **Decoupled SPA** in `frontend/` (`VITE_API_URL`).
+- **Domain** in `backend/domain/`; data access in `backend/data/repositories/`.
+- **LLM** abstracted in `backend/llm/`; **guardrails** and **CAG** before/after the provider.
+- **Single-tenant**, target deployment **Azure**.
 
-## Visualización Mermaid
+## Mermaid visualization
 
-Diagramas en sintaxis C4 (`C4Context`, `C4Container`, …). Requieren Mermaid 9.4+; revisar en VS Code con extensión Mermaid o [mermaid.live](https://mermaid.live).
+Diagrams use C4 syntax (`C4Context`, `C4Container`, …). Require Mermaid 9.4+; preview in VS Code with Mermaid extension or [mermaid.live](https://mermaid.live).
 
-## Referencias
+## References
 
-- [Requerimientos](../requirements.md)
-- [README del backend](../../backend/README.md)
+- [Requirements](../requirements.md)
+- [Backend README](../../backend/README.md)

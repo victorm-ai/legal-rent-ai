@@ -106,7 +106,7 @@ async def confirm_signing_slot(
         status="confirmed",
         slot_label=payload.slot_label,
         message=(
-            "Horario registrado de forma simulada. Su abogado confirmará la cita "
-            "para la firma con el arrendador."
+            "Time slot recorded (simulated). Your lawyer will confirm the appointment "
+            "for signing with the landlord."
         ),
     )

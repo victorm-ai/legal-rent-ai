@@ -75,10 +75,10 @@ class EmailSender:
         contract_title: str | None,
         summary_excerpt: str | None,
     ) -> None:
-        subject = "Legal Rent AI — Nueva versión editada del contrato"
+        subject = "Legal Rent AI — New edited contract version"
         title = contract_title or "Lease contract"
         body_lines = [
-            "Su abogado ha subido una nueva versión editada del contrato para su revisión.",
+            "Your lawyer uploaded a new edited contract version for your review.",
             "",
             f"Contract: {title}",
             f"Analysis ID: {analysis_id}",

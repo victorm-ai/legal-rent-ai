@@ -110,7 +110,7 @@ class ComparisonService:
         )
         if base_analysis is None:
             raise ComparisonError(
-                "El contrato original debe estar analizado antes de comparar la versión editada."
+                "The original contract must be analyzed before comparing the edited version."
             )
 
         compare_analysis = self._latest_completed_analysis(
@@ -120,7 +120,7 @@ class ComparisonService:
         )
         if compare_analysis is None:
             raise ComparisonError(
-                "La versión editada aún no tiene análisis. Ejecute la comparación de nuevo tras completarlo."
+                "The edited version has no analysis yet. Run comparison again after it completes."
             )
 
         return self._compare_analyses_for_contract(
@@ -129,7 +129,7 @@ class ComparisonService:
             contract_title=contract.title,
             base_analysis=base_analysis,
             compare_analysis=compare_analysis,
-            summary_prefix="Comparación contrato original vs versión editada",
+            summary_prefix="Original contract vs edited version comparison",
         )
 
     def get_revision_comparison_context(self, contract_id: str) -> dict | None:
@@ -232,8 +232,8 @@ class ComparisonService:
         risk_delta = self._compute_risk_delta(base_analysis.general_risk, compare_analysis.general_risk)
         label = contract_title or contract_id
         summary = (
-            f"{summary_prefix} '{label}': {len(changes)} cambio(s) detectado(s). "
-            f"Delta de riesgo: {risk_delta or 'sin cambio'}."
+            f"{summary_prefix} '{label}': {len(changes)} change(s) detected. "
+            f"Risk delta: {risk_delta or 'unchanged'}."
         )
 
         comparison = self._comparisons.create(
@@ -278,12 +278,12 @@ class ComparisonService:
     def _difference_summary(old: str | None, new: str | None) -> str:
         change_type = ComparisonService._field_change_type(old, new)
         if change_type == "unchanged":
-            return "Sin cambio"
+            return "Unchanged"
         if change_type == "added":
-            return "Agregado en la versión editada"
+            return "Added in edited version"
         if change_type == "removed":
-            return "Eliminado en la versión editada"
-        return "Modificado"
+            return "Removed in edited version"
+        return "Modified"
 
     @classmethod
     def _build_comparison_rows(

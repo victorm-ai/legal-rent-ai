@@ -347,7 +347,7 @@ export default function AnalysisResultsDialog({
                 label={
                   ANALYSIS_DOCUMENT_SCOPE_LABELS[analysis.document_scope ?? 'original'] ??
                   analysis.document_scope ??
-                  'Contrato original'
+                  'Original contract'
                 }
                 size="small"
                 variant="outlined"
@@ -456,16 +456,16 @@ export default function AnalysisResultsDialog({
                               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
                                 <span>{EXTRACTED_FIELD_LABELS[fieldName] ?? fieldName}</span>
                                 {field.requires_review && (
-                                  <Chip label="Requiere revisión" size="small" color="warning" variant="outlined" />
+                                  <Chip label="Needs review" size="small" color="warning" variant="outlined" />
                                 )}
                               </Box>
                             }
                             secondary={
                               <>
                                 {field.requires_review ? '~' : ''}{field.value}
-                                {' · Confianza: '}{(field.confidence * 100).toFixed(0)}%
+                                {' · Confidence: '}{(field.confidence * 100).toFixed(0)}%
                                 {field.source?.text_snippet && (
-                                  <> · Fuente: {field.source.text_snippet.slice(0, 120)}…</>
+                                  <> · Source: {field.source.text_snippet.slice(0, 120)}…</>
                                 )}
                               </>
                             }
@@ -480,7 +480,7 @@ export default function AnalysisResultsDialog({
                   <>
                     <Divider />
                     <Typography variant="subtitle1" fontWeight={600}>
-                      Hallazgos ({analysis.findings.length})
+                      Findings ({analysis.findings.length})
                     </Typography>
                     <List dense disablePadding>
                       {analysis.findings.map((finding) => {
@@ -508,7 +508,7 @@ export default function AnalysisResultsDialog({
                                 )}
                                 {finding.confidence != null && (
                                   <Chip
-                                    label={`Confianza ${(finding.confidence * 100).toFixed(0)}%`}
+                                    label={`Confidence ${(finding.confidence * 100).toFixed(0)}%`}
                                     size="small"
                                     variant="outlined"
                                   />
@@ -522,30 +522,30 @@ export default function AnalysisResultsDialog({
                                 </Typography>
                                 {finding.recommendation && (
                                   <Typography variant="body2" component="div" sx={{ mt: 0.5 }}>
-                                    <strong>Recomendación:</strong> {finding.recommendation}
+                                    <strong>Recommendation:</strong> {finding.recommendation}
                                   </Typography>
                                 )}
                                 {finding.legal_basis && (
                                   <Typography variant="body2" component="div" sx={{ mt: 0.5 }}>
-                                    <strong>Fundamento legal:</strong> {finding.legal_basis}
+                                    <strong>Legal basis:</strong> {finding.legal_basis}
                                     {finding.source_law ? ` (${finding.source_law})` : ''}
                                   </Typography>
                                 )}
                                 {finding.evidence_text && (
                                   <Typography variant="caption" component="div" sx={{ mt: 0.5, display: 'block' }}>
-                                    <strong>Evidencia:</strong> {finding.evidence_text.slice(0, 300)}
-                                    {finding.evidence_page != null ? ` · Página ${finding.evidence_page}` : ''}
+                                    <strong>Evidence:</strong> {finding.evidence_text.slice(0, 300)}
+                                    {finding.evidence_page != null ? ` · Page ${finding.evidence_page}` : ''}
                                   </Typography>
                                 )}
                                 {linkedClause && (
                                   <Typography variant="caption" component="div" sx={{ mt: 0.5, display: 'block' }}>
-                                    <strong>Cláusula vinculada:</strong> {CLAUSE_CATEGORY_LABELS[linkedClause.category] ?? linkedClause.category}
+                                    <strong>Linked clause:</strong> {CLAUSE_CATEGORY_LABELS[linkedClause.category] ?? linkedClause.category}
                                     {linkedClause.section ? ` · ${linkedClause.section}` : ''}
                                   </Typography>
                                 )}
                                 {finding.suggested_rewording && (
                                   <Typography variant="body2" component="div" sx={{ mt: 0.5, fontStyle: 'italic' }}>
-                                    <strong>Redacción sugerida:</strong> {finding.suggested_rewording}
+                                    <strong>Suggested wording:</strong> {finding.suggested_rewording}
                                   </Typography>
                                 )}
                                 {onViewDocument && contractId && (finding.evidence_text || finding.evidence_page != null || linkedClause) && (
@@ -555,7 +555,7 @@ export default function AnalysisResultsDialog({
                                     sx={{ mt: 0.5, px: 0 }}
                                     onClick={() => onViewDocument(contractId, finding.evidence_page ?? linkedClause?.page ?? null)}
                                   >
-                                    Ver en documento
+                                    View in document
                                   </Button>
                                 )}
                               </Box>

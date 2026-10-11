@@ -75,8 +75,8 @@ def test_build_signing_coordination_html_contains_schedule_link():
     )
     assert "schedule-signing" in html
     assert "Resumen" in html
-    assert "Próximos pasos" in html
-    assert "Próximos horarios" not in html
+    assert "Next steps" in html
+    assert "Upcoming schedules" not in html
 
 
 def test_generate_signing_schedule_by_date_respects_days_ahead():
